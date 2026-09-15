@@ -782,7 +782,7 @@
           <div class="switch">
             <div><b>Environment</b>
               <div class="sub">Current development environment.</div>
-            </div><span>LOCAL</span>
+            </div><span id="envStatus">Local</span>
           </div>
           <div class="switch">
             <div><b>Backend</b>
@@ -801,7 +801,20 @@
   </div>
 
   <script>
-    const API = "/api";
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+    const envStatusEl = document.getElementById("envStatus");
+    if (envStatusEl) {
+      envStatusEl.textContent = isLocal ? "Local" : "Vercel";
+    }
+
+    const getApiBase = () => {
+      if (window.location.protocol === 'file:') return "http://localhost:8000/api";
+      if (window.location.port && window.location.port !== '8000' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        return "http://localhost:8000/api";
+      }
+      return "/api";
+    };
+    const API = getApiBase();
     let chart, monitorChart, analyticsChart, lastHistory = [];
 
     async function get(path) { const r = await fetch(API + path); if (!r.ok) throw new Error("API error"); return r.json(); }
@@ -882,8 +895,8 @@
         if (monitorChart) { monitorChart.data.labels = m.history.map(x => x.time); monitorChart.data.datasets[0].data = m.history.map(x => x.cpu); monitorChart.data.datasets[1].data = m.history.map(x => x.memory); monitorChart.update("none"); }
         if (analyticsChart) { analyticsChart.data.labels = m.history.map(x => x.time); analyticsChart.data.datasets[0].data = m.history.map(x => x.requests); analyticsChart.update("none"); }
         const vals = m.history.map(x => x.cpu); document.getElementById("avgCpu").textContent = (vals.reduce((a, b) => a + b, 0) / (vals.length || 1)).toFixed(1) + "%"; document.getElementById("peakCpu").textContent = (Math.max(...vals, 0)).toFixed(1) + "%"; document.getElementById("peakReq").textContent = Math.max(...m.history.map(x => x.requests), 0).toLocaleString(); document.getElementById("scaleEvents").textContent = ev.filter(x => x.kind === "scale").length;
-        document.getElementById("backendStatus").textContent = "CONNECTED";
-      } catch (e) { document.getElementById("backendStatus").textContent = "OFFLINE"; console.error(e); }
+        document.getElementById("backendStatus").textContent = "Connected";
+      } catch (e) { document.getElementById("backendStatus").textContent = "Offline"; console.error(e); }
     }
 
     async function loadPolicy() {

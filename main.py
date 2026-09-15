@@ -9,7 +9,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-app = FastAPI(title="CloudScale API", version="1.0.0")
+app = FastAPI(title="CloudScale API", version="1.0.0", redirect_slashes=False)
 
 app.add_middleware(
     CORSMiddleware,
@@ -103,12 +103,16 @@ def favicon():
     return Response(status_code=204)
 
 @app.get("/api/health")
+@app.get("/api/health/")
 @app.get("/health")
+@app.get("/health/")
 def health():
     return {"status": "healthy", "service": "cloudscale-api"}
 
 @app.get("/api/metrics")
+@app.get("/api/metrics/")
 @app.get("/metrics")
+@app.get("/metrics/")
 def metrics():
     tick()
     return {
@@ -123,7 +127,9 @@ def metrics():
     }
 
 @app.get("/api/resources")
+@app.get("/api/resources/")
 @app.get("/resources")
+@app.get("/resources/")
 def resources():
     return [
         {
@@ -138,7 +144,9 @@ def resources():
     ]
 
 @app.get("/api/autoscaling")
+@app.get("/api/autoscaling/")
 @app.get("/autoscaling")
+@app.get("/autoscaling/")
 def autoscaling():
     return {
         "enabled": state["autoscaling"],
@@ -156,7 +164,9 @@ class ScalingConfig(BaseModel):
     scale_down_threshold: float
 
 @app.post("/api/autoscaling")
+@app.post("/api/autoscaling/")
 @app.post("/autoscaling")
+@app.post("/autoscaling/")
 def update_autoscaling(config: ScalingConfig):
     state["autoscaling"] = config.enabled
     state["min_instances"] = max(1, config.min_instances)
@@ -170,7 +180,9 @@ class LoadConfig(BaseModel):
     enabled: bool
 
 @app.post("/api/load-test")
+@app.post("/api/load-test/")
 @app.post("/load-test")
+@app.post("/load-test/")
 def load_test(config: LoadConfig):
     state["load_test"] = config.enabled
     add_event(
@@ -180,12 +192,16 @@ def load_test(config: LoadConfig):
     return {"success": True, "load_test": state["load_test"]}
 
 @app.get("/api/activity")
+@app.get("/api/activity/")
 @app.get("/activity")
+@app.get("/activity/")
 def activity():
     return state["events"]
 
 @app.get("/api/insights")
+@app.get("/api/insights/")
 @app.get("/insights")
+@app.get("/insights/")
 def insights():
     if state["cpu"] > 75:
         return {
