@@ -349,7 +349,7 @@ CloudScale was developed as a **Cloud Computing Internship Project** by **Prajwa
 ## Author
 
 **Prajwal**  
-*Software Engineer*
+
 
 ---
 
