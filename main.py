@@ -93,10 +93,12 @@ def favicon():
     return Response(status_code=204)
 
 @app.get("/api/health")
+@app.get("/health")
 def health():
     return {"status": "healthy", "service": "cloudscale-api"}
 
 @app.get("/api/metrics")
+@app.get("/metrics")
 def metrics():
     tick()
     return {
@@ -111,6 +113,7 @@ def metrics():
     }
 
 @app.get("/api/resources")
+@app.get("/resources")
 def resources():
     return [
         {
@@ -125,6 +128,7 @@ def resources():
     ]
 
 @app.get("/api/autoscaling")
+@app.get("/autoscaling")
 def autoscaling():
     return {
         "enabled": state["autoscaling"],
@@ -142,6 +146,7 @@ class ScalingConfig(BaseModel):
     scale_down_threshold: float
 
 @app.post("/api/autoscaling")
+@app.post("/autoscaling")
 def update_autoscaling(config: ScalingConfig):
     state["autoscaling"] = config.enabled
     state["min_instances"] = max(1, config.min_instances)
@@ -155,6 +160,7 @@ class LoadConfig(BaseModel):
     enabled: bool
 
 @app.post("/api/load-test")
+@app.post("/load-test")
 def load_test(config: LoadConfig):
     state["load_test"] = config.enabled
     add_event(
@@ -164,10 +170,12 @@ def load_test(config: LoadConfig):
     return {"success": True, "load_test": state["load_test"]}
 
 @app.get("/api/activity")
+@app.get("/activity")
 def activity():
     return state["events"]
 
 @app.get("/api/insights")
+@app.get("/insights")
 def insights():
     if state["cpu"] > 75:
         return {
