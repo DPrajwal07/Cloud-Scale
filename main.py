@@ -89,6 +89,7 @@ def root():
     }
 
 @app.get("/api")
+@app.get("/api/")
 def api_root():
     return {
         "status": "healthy",
