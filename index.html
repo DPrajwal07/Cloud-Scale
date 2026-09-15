@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Primary Meta Tags -->
+  <title>CloudScale — Cloud Infrastructure Monitoring & Auto-Scaling</title>
+  <meta name="title" content="CloudScale — Cloud Infrastructure Monitoring & Auto-Scaling">
+  <meta name="description"
+    content="CloudScale is a cloud infrastructure monitoring and auto-scaling platform designed to visualize resource utilization, workload behavior, analytics, and scaling decisions.">
+
+  <!-- Open Graph / Facebook / LinkedIn -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://cloudscale.io/">
+  <meta property="og:title" content="CloudScale — Cloud Infrastructure Monitoring & Auto-Scaling">
+  <meta property="og:description"
+    content="CloudScale is a cloud infrastructure monitoring and auto-scaling platform designed to visualize resource utilization, workload behavior, analytics, and scaling decisions.">
+  <meta property="og:image" content="assets/images/Logo1.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/images/favicon.png">
+  <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+  <!-- ==========================================================================
+       HEADER & NAVIGATION
+       ========================================================================== -->
+  <header class="header">
+    <div class="container navbar">
+      <a href="#home" class="nav-brand" aria-label="CloudScale Homepage">
+        <img src="assets/images/logo-light.png" alt="CloudScale Logo" style="height: 50px;">
+      </a>
+
+      <nav>
+        <ul class="nav-menu" role="menu">
+          <li role="none"><a href="#home" class="nav-link active" role="menuitem">Home</a></li>
+          <li role="none"><a href="#about" class="nav-link" role="menuitem">About</a></li>
+          <li role="none"><a href="#how-it-works" class="nav-link" role="menuitem">How It Works</a></li>
+          <li role="none"><a href="#features" class="nav-link" role="menuitem">Features</a></li>
+          <li role="none"><a href="#architecture" class="nav-link" role="menuitem">Architecture</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="dashboard/index.html" class="btn btn-primary btn-sm">Launch Dashboard</a>
+        <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+          <div class="nav-toggle-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       HERO SECTION
+       ========================================================================== -->
+  <section id="home" class="hero">
+    <div class="container hero-grid">
+
+      <!-- Hero Left: Content -->
+      <div class="hero-content reveal">
+        <!-- Simulation Environment Indicator -->
+        <div class="simulation-badge">
+          <span class="badge-pulse"></span>
+          SIMULATION ENVIRONMENT — MVP ACTIVE
+        </div>
+
+        <h1 class="hero-tagline">
+          Monitor. Analyze. <span class="highlight">Scale.</span>
+        </h1>
+        <h2 class="hero-subtitle">
+          Cloud infrastructure visibility, simplified.
+        </h2>
+        <p class="hero-description">
+          CloudScale provides a unified view of infrastructure health, resource utilization, workload behavior, and
+          scaling activity — all through a clean telemetry &amp; decision platform.
+        </p>
+
+        <div class="hero-ctas">
+          <a href="dashboard/index.html" class="btn btn-primary">
+            Launch Dashboard
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
+          <a href="#how-it-works" class="btn btn-secondary">Explore Platform</a>
+        </div>
+
+        <div class="hero-disclaimer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#087DB3" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4M12 8h.01" />
+          </svg>
+          Running local simulated infrastructure engine. AWS CloudWatch integration planned post-MVP.
+        </div>
+      </div>
+
+      <!-- Hero Right: Live Telemetry & Cluster Status Widget -->
+      <div class="hero-visual-card reveal">
+        <div class="telemetry-widget">
+          <div class="telemetry-header">
+            <div class="window-dots">
+              <span class="dot dot-red"></span>
+              <span class="dot dot-yellow"></span>
+              <span class="dot dot-green"></span>
+            </div>
+            <div class="telemetry-title">cloudscale-cluster / ap-south-1</div>
+            <div class="telemetry-status-badge">
+              <span class="pulse-dot"></span> LIVE TELEMETRY
+            </div>
+          </div>
+
+          <div class="telemetry-stats-row">
+            <div class="stat-mini-card">
+              <div class="stat-label">CPU UTILIZATION</div>
+              <div class="stat-val" id="heroCpuVal">42.8%</div>
+              <div class="stat-bar">
+                <div class="stat-fill" id="heroCpuFill" style="width: 42.8%;"></div>
+              </div>
+            </div>
+            <div class="stat-mini-card">
+              <div class="stat-label">LATENCY</div>
+              <div class="stat-val" id="heroLatencyVal" style="color: #10B981;">38ms</div>
+              <div class="stat-bar">
+                <div class="stat-fill" id="heroLatencyFill" style="width: 38%; background: #10B981;"></div>
+              </div>
+            </div>
+            <div class="stat-mini-card">
+              <div class="stat-label">ACTIVE NODES</div>
+              <div class="stat-val" id="heroNodesVal" style="color: #38BDF8;">2 Nodes</div>
+              <div class="stat-bar">
+                <div class="stat-fill" id="heroNodesFill" style="width: 40%; background: #38BDF8;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="telemetry-console" id="heroConsole">
+            <div class="console-line"><span class="c-time">14:48:01</span> <span class="c-tag tag-info">INGRESS</span>
+              Inflow traffic: 1,420 req/s</div>
+            <div class="console-line"><span class="c-time">14:48:04</span> <span class="c-tag tag-scale">POLICY</span>
+              Auto-scale evaluate: CPU 42.8% &lt; threshold 75%</div>
+            <div class="console-line"><span class="c-time">14:48:07</span> <span class="c-tag tag-health">HEALTH</span>
+              Cluster status: Healthy · 99.9% Uptime</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       TRUST / VALUE STRIP
+       ========================================================================== -->
+  <section class="trust-strip">
+    <div class="container trust-grid">
+
+      <div class="trust-item">
+        <div class="trust-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
+        </div>
+        <div>
+          <div class="trust-title">Real-time Telemetry</div>
+          <div class="trust-subtitle">Live metric streaming</div>
+        </div>
+      </div>
+
+      <div class="trust-item">
+        <div class="trust-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+        </div>
+        <div>
+          <div class="trust-title">Resource Analytics</div>
+          <div class="trust-subtitle">CPU &amp; Memory telemetry</div>
+        </div>
+      </div>
+
+      <div class="trust-item">
+        <div class="trust-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path
+              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+          </svg>
+        </div>
+        <div>
+          <div class="trust-title">Auto-Scaling Engine</div>
+          <div class="trust-subtitle">Threshold rule simulation</div>
+        </div>
+      </div>
+
+      <div class="trust-item">
+        <div class="trust-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+        </div>
+        <div>
+          <div class="trust-title">Infrastructure Insights</div>
+          <div class="trust-subtitle">Operational observations</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       ABOUT CLOUDSCALE
+       ========================================================================== -->
+  <section id="about" class="section section-bg-light">
+    <div class="container about-grid">
+
+      <div class="about-text reveal">
+        <div class="section-tag">About CloudScale</div>
+        <h2 class="section-title">Unified Infrastructure Observability.</h2>
+        <p>
+          Cloud infrastructure generates massive volumes of operational telemetry. Understanding resource utilization,
+          traffic spikes, and scaling decisions can become fragmented when telemetry is split across multiple tools.
+        </p>
+        <p>
+          CloudScale brings resource monitoring, workload analysis, and automated scaling policies into a single
+          cohesive interface, enabling operational clarity.
+        </p>
+        <div style="margin-top: 1.25rem;">
+          <a href="#how-it-works" class="btn btn-secondary btn-sm">See How It Works →</a>
+        </div>
+      </div>
+
+      <!-- About Infrastructure Comparison Visual -->
+      <div class="about-visual reveal">
+        <svg viewBox="0 0 450 260" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Left Box: Fragmented Observability -->
+          <g transform="translate(20, 20)">
+            <rect x="0" y="0" width="180" height="220" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" />
+            <text x="90" y="28" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700"
+              font-size="11" fill="#64748B">FRAGMENTED TOOLS</text>
+
+            <rect x="20" y="50" width="140" height="36" rx="6" fill="#F8FAFC" stroke="#E2E8F0" />
+            <text x="90" y="72" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#475569">Tool
+              A: Logs</text>
+
+            <rect x="20" y="100" width="140" height="36" rx="6" fill="#F8FAFC" stroke="#E2E8F0" />
+            <text x="90" y="122" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#475569">Tool
+              B: Metrics</text>
+
+            <rect x="20" y="150" width="140" height="36" rx="6" fill="#F8FAFC" stroke="#E2E8F0" />
+            <text x="90" y="172" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#475569">Tool
+              C: Manual Scale</text>
+          </g>
+
+          <!-- Middle Arrow -->
+          <text x="225" y="135" text-anchor="middle" font-family="Inter, sans-serif" font-weight="800" font-size="20"
+            fill="#087DB3">→</text>
+
+          <!-- Right Box: Unified CloudScale -->
+          <g transform="translate(250, 20)">
+            <rect x="0" y="0" width="180" height="220" rx="10" fill="#F0F9FF" stroke="#087DB3" stroke-width="2" />
+            <text x="90" y="28" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700"
+              font-size="11" fill="#087DB3">UNIFIED CLOUDSCALE</text>
+
+            <rect x="20" y="55" width="140" height="135" rx="8" fill="#FFFFFF" stroke="#087DB3" stroke-opacity="0.25" />
+            <circle cx="50" cy="90" r="16" fill="rgba(8,125,179,0.1)" />
+            <path d="M45 90 L50 85 L55 92" stroke="#087DB3" stroke-width="2" stroke-linecap="round" />
+            <text x="75" y="94" font-family="Inter, sans-serif" font-weight="700" font-size="11" fill="#0F172A">Single
+              Telemetry</text>
+            <text x="75" y="108" font-family="Inter, sans-serif" font-size="10" fill="#64748B">Monitor + Scale</text>
+
+            <rect x="35" y="145" width="110" height="28" rx="6" fill="#087DB3" />
+            <text x="90" y="163" text-anchor="middle" font-family="Inter, sans-serif" font-weight="600" font-size="10"
+              fill="#FFFFFF">Automated Scaling</text>
+          </g>
+        </svg>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       HOW IT WORKS SECTION
+       ========================================================================== -->
+  <section id="how-it-works" class="section">
+    <div class="container">
+
+      <div class="section-header reveal">
+        <div class="section-tag">Platform Process</div>
+        <h2 class="section-title">How CloudScale works</h2>
+        <p class="section-subtitle">
+          Four continuous steps from workload telemetry to automated capacity adjustment.
+        </p>
+      </div>
+
+      <div class="how-it-works-timeline">
+
+        <div class="timeline-step-card reveal">
+          <div class="step-num">01</div>
+          <h3 class="step-title">Monitor</h3>
+          <p class="step-desc">Ingest infrastructure metrics and workload telemetry in real time.</p>
+        </div>
+
+        <div class="timeline-step-card reveal">
+          <div class="step-num">02</div>
+          <h3 class="step-title">Analyze</h3>
+          <p class="step-desc">Analyze resource utilization trends and workload behavior patterns.</p>
+        </div>
+
+        <div class="timeline-step-card reveal">
+          <div class="step-num">03</div>
+          <h3 class="step-title">Decide</h3>
+          <p class="step-desc">Evaluate configured auto-scaling thresholds and policy constraints.</p>
+        </div>
+
+        <div class="timeline-step-card reveal">
+          <div class="step-num">04</div>
+          <h3 class="step-title">Scale</h3>
+          <p class="step-desc">Adjust compute capacity automatically in response to workload demands.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       FEATURES SECTION
+       ========================================================================== -->
+  <section id="features" class="section section-bg-light">
+    <div class="container">
+
+      <div class="section-header reveal">
+        <div class="section-tag">Core Platform Features</div>
+        <h2 class="section-title">Everything you need to understand your infrastructure.</h2>
+        <p class="section-subtitle">
+          Designed specifically to make monitoring metrics and auto-scaling logic clear, actionable, and visual.
+        </p>
+      </div>
+
+      <div class="features-grid">
+
+        <!-- Feature 1 -->
+        <div class="feature-card reveal">
+          <div class="feature-tag-mono">SYSTEM_METRICS</div>
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
+          </div>
+          <h3 class="feature-title">Resource Monitoring</h3>
+          <p class="feature-desc">Track CPU, memory, requests, latency, and instance utilization from a unified
+            dashboard.</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card reveal">
+          <div class="feature-tag-mono">HEALTH_CHECKS</div>
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+          </div>
+          <h3 class="feature-title">Infrastructure Health</h3>
+          <p class="feature-desc">Understand the current operational state of monitored resources through health
+            indicators.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card reveal">
+          <div class="feature-tag-mono">SYNTHETIC_LOAD</div>
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <polygon points="10 8 16 12 10 16 10 8" />
+            </svg>
+          </div>
+          <h3 class="feature-title">Workload Simulation</h3>
+          <p class="feature-desc">Simulate changing workload traffic and observe how infrastructure resources adapt.</p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-card reveal">
+          <div class="feature-tag-mono">DYNAMIC_SCALE</div>
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path
+                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+            </svg>
+          </div>
+          <h3 class="feature-title">Auto-Scaling Engine</h3>
+          <p class="feature-desc">Demonstrate scale-up and scale-down decisions using configurable threshold rules.</p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="feature-card reveal">
+          <div class="feature-tag-mono">TREND_ANALYTICS</div>
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 3v18h18" />
+              <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" />
+            </svg>
+          </div>
+          <h3 class="feature-title">Resource Analytics</h3>
+          <p class="feature-desc">Visualize resource behavior and workload trends through clean interactive charts.</p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="feature-card reveal">
+          <div class="feature-tag-mono">AI_OBSERVATIONS</div>
+          <div class="feature-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          </div>
+          <h3 class="feature-title">Infrastructure Insights</h3>
+          <p class="feature-desc">Turn telemetry metrics into clear operational observations and recommendations.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       INTERACTIVE DEMO / PRODUCT PREVIEW
+       ========================================================================== -->
+  <section class="section">
+    <div class="container">
+
+      <div class="section-header reveal">
+        <div class="section-tag">Interactive Dashboard Preview</div>
+        <h2 class="section-title">Experience the CloudScale Dashboard</h2>
+        <p class="section-subtitle">
+          Interact with the dashboard preview below to explore real-time monitoring, auto-scaling rules, resource
+          analytics, and system insights.
+        </p>
+      </div>
+
+      <!-- Preview Window Box -->
+      <div class="preview-section-card reveal">
+
+        <div class="preview-header-bar">
+          <div class="preview-window-dots">
+            <span class="window-dot dot-red"></span>
+            <span class="window-dot dot-yellow"></span>
+            <span class="window-dot dot-green"></span>
+          </div>
+          <div class="preview-title-tag">
+            <img src="assets/images/icon-light.png" alt="CloudScale Icon"
+              style="height: 14px; width: auto; display: inline-block; vertical-align: middle;">
+            cloudscale.internal/dashboard
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span class="badge badge-available">Live MVP Preview</span>
+            <a href="dashboard/index.html" target="_blank" class="btn btn-secondary-dark btn-sm"
+              style="padding: 4px 10px; font-size: 0.75rem; text-decoration: none;">
+              Open Full Screen ↗
+            </a>
+          </div>
+        </div>
+
+        <div class="preview-iframe-wrapper">
+          <iframe src="dashboard/index.html" title="CloudScale Actual Dashboard Preview"
+            style="width: 100%; height: 100%; border: none; display: block;" loading="lazy">
+          </iframe>
+        </div>
+
+        <div class="preview-cta-bar">
+          <span style="font-size: 0.875rem; color: #94A3B8;">Ready for full cluster control &amp; scaling rule
+            configuration?</span>
+          <a href="dashboard/index.html" class="btn btn-primary btn-sm">Explore Full CloudScale Dashboard
+            →</a>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       ARCHITECTURE SECTION
+       ========================================================================== -->
+  <section id="architecture" class="section section-bg-dark">
+    <div class="container arch-grid">
+
+      <div class="section-header reveal">
+        <div class="section-tag section-tag-dark">System Architecture</div>
+        <h2 class="section-title">Built with a decoupled cloud architecture.</h2>
+        <p class="section-subtitle">
+          Decoupled frontend monitoring, Python FastAPI orchestration, and simulated telemetry engine.
+        </p>
+      </div>
+
+      <!-- Current MVP Pipeline Flow -->
+      <div class="arch-flow-diagram reveal">
+        <div class="arch-nodes-wrapper">
+
+          <div class="arch-node">
+            <div class="arch-node-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
+            <div class="arch-node-title">Web Client</div>
+            <div class="arch-node-subtitle">User Interface</div>
+          </div>
+
+          <div class="arch-arrow">→</div>
+
+          <div class="arch-node">
+            <div class="arch-node-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <line x1="3" y1="9" x2="21" y2="9" />
+                <line x1="9" y1="21" x2="9" y2="9" />
+              </svg>
+            </div>
+            <div class="arch-node-title">Dashboard UI</div>
+            <div class="arch-node-subtitle">Interactive App</div>
+          </div>
+
+          <div class="arch-arrow">→</div>
+
+          <div class="arch-node">
+            <div class="arch-node-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />
+              </svg>
+            </div>
+            <div class="arch-node-title">FastAPI Backend</div>
+            <div class="arch-node-subtitle">Python API Engine</div>
+          </div>
+
+          <div class="arch-arrow">→</div>
+
+          <div class="arch-node">
+            <div class="arch-node-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="2" width="20" height="8" rx="2" />
+                <rect x="2" y="14" width="20" height="8" rx="2" />
+                <line x1="6" y1="6" x2="6.01" y2="6" />
+                <line x1="6" y1="18" x2="6.01" y2="18" />
+              </svg>
+            </div>
+            <div class="arch-node-title">Telemetry Engine</div>
+            <div class="arch-node-subtitle">Simulation Core</div>
+          </div>
+
+          <div class="arch-arrow">→</div>
+
+          <div class="arch-node">
+            <div class="arch-node-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+              </svg>
+            </div>
+            <div class="arch-node-title">Scaling Policy</div>
+            <div class="arch-node-subtitle">Decision Logic</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Future AWS Integration Block -->
+      <div class="future-aws-box reveal">
+        <div class="future-badge">PLANNED ROADMAP ITEM</div>
+        <div style="font-size: 1.1rem; font-weight: 700; color: #FFFFFF; margin-bottom: 0.35rem;">Future AWS Integration
+        </div>
+        <p style="font-size: 0.875rem; color: #94A3B8;">
+          Following local MVP stabilization, CloudScale will expand to integrate directly with cloud APIs for live AWS
+          instance monitoring and cloud-native auto-scaling groups.
+        </p>
+
+        <div class="future-aws-grid">
+          <div class="future-aws-card">
+            <div class="future-aws-title">AWS Infrastructure</div>
+            <div class="future-aws-desc">EC2 &amp; Auto Scaling Groups</div>
+          </div>
+          <div class="future-aws-card">
+            <div class="future-aws-title">Cloud Monitoring</div>
+            <div class="future-aws-desc">Amazon CloudWatch Telemetry</div>
+          </div>
+          <div class="future-aws-card">
+            <div class="future-aws-title">Cloud Resource APIs</div>
+            <div class="future-aws-desc">Boto3 AWS SDK Integration</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       CURRENT MVP STATUS SECTION
+       ========================================================================== -->
+  <section class="section section-bg-light">
+    <div class="container">
+
+      <div class="section-header reveal">
+        <div class="section-tag">Roadmap Transparency</div>
+        <h2 class="section-title">Built as an evolving platform.</h2>
+        <p class="section-subtitle">
+          Transparent status of current MVP features vs upcoming production planned capabilities.
+        </p>
+      </div>
+
+      <div class="status-grid">
+
+        <!-- Current MVP Card -->
+        <div class="status-card reveal">
+          <div class="status-card-header">
+            <div class="status-card-title">Current Capabilities</div>
+            <span class="badge badge-available">MVP ACTIVE</span>
+          </div>
+
+          <div class="status-list">
+            <div class="status-list-item">
+              <span class="status-check-icon">✓</span>
+              Simulated Infrastructure Telemetry Engine
+            </div>
+            <div class="status-list-item">
+              <span class="status-check-icon">✓</span>
+              Python FastAPI Telemetry Backend
+            </div>
+            <div class="status-list-item">
+              <span class="status-check-icon">✓</span>
+              Interactive Monitoring Dashboard
+            </div>
+            <div class="status-list-item">
+              <span class="status-check-icon">✓</span>
+              Auto-Scaling Rule Engine Simulation
+            </div>
+          </div>
+        </div>
+
+        <!-- Planned Roadmap Card -->
+        <div class="status-card reveal">
+          <div class="status-card-header">
+            <div class="status-card-title">Future Roadmap</div>
+            <span class="badge badge-planned">PLANNED</span>
+          </div>
+
+          <div class="status-list">
+            <div class="status-list-item">
+              <span class="status-clock-icon">◷</span>
+              AWS Infrastructure &amp; EC2 Integration
+            </div>
+            <div class="status-list-item">
+              <span class="status-clock-icon">◷</span>
+              CloudWatch Native Metric Streaming
+            </div>
+            <div class="status-list-item">
+              <span class="status-clock-icon">◷</span>
+              Production Deployment &amp; Security Hardening
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       CALL TO ACTION (CTA)
+       ========================================================================== -->
+  <section class="section">
+    <div class="container">
+
+      <div class="cta-banner-box reveal">
+        <h2 class="cta-title">Ready to explore CloudScale?</h2>
+        <p class="cta-text">
+          Explore the dashboard and see how infrastructure monitoring and automated scaling work together seamlessly.
+        </p>
+
+        <div class="cta-actions">
+          <a href="dashboard/index.html" class="btn btn-primary">
+            Launch Dashboard →
+          </a>
+          <a href="#architecture" class="btn btn-secondary-dark">View Architecture</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       FOOTER
+       ========================================================================== -->
+  <footer class="footer">
+    <div class="container">
+
+      <div class="footer-grid">
+
+        <div class="footer-brand">
+          <a href="#home" aria-label="CloudScale Homepage">
+            <img src="assets/images/logo-dark.png" alt="CloudScale Logo" class="footer-logo-img">
+          </a>
+          <p>
+            A cloud infrastructure visibility and auto-scaling platform project. Built to Monitor. Analyze. Scale.
+          </p>
+        </div>
+
+        <div>
+          <div class="footer-heading">Navigation</div>
+          <div class="footer-links">
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#features">Features</a>
+            <a href="#architecture">Architecture</a>
+            <a href="dashboard/index.html">Dashboard</a>
+          </div>
+        </div>
+
+        <div>
+          <div class="footer-heading">Project Info</div>
+          <p style="font-size: 0.85rem; color: #64748B; line-height: 1.55;">
+            CloudScale is built for demonstrating resource utilization telemetry and automated scaling principles.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-disclaimer-text">
+          Status: CloudScale is currently running with a simulated infrastructure engine. AWS integration will be added
+          after the local MVP is stable.
+        </div>
+        <div>
+          © 2026 CloudScale. All rights reserved.
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/main.js"></script>
+</body>
+
+</html>

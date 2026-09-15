@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CloudScale — Intelligent Cloud Infrastructure</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <meta name="description" content="CloudScale monitors workloads and automates cloud resource scaling.">
+  <script>
+    (function () {
+      const saved = localStorage.getItem("theme");
+      const theme = saved || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4"></script>
+  <style>
+    :root {
+      color-scheme: dark light;
+      --bg: #070a12;
+      --bg-gradient: radial-gradient(circle at 70% -10%, #1d1740 0, #070a12 38%);
+      --panel: #0d1220;
+      --panel2: #111827;
+      --card-bg: linear-gradient(180deg, #101625, #0c111d);
+      --sidebar-bg: rgba(7, 10, 18, .86);
+      --line: #20283a;
+      --text: #f4f7fb;
+      --muted: #8d99ad;
+      --accent: #8b5cf6;
+      --accent2: #06b6d4;
+      --green: #22c55e;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --nav-btn-color: #8792a6;
+      --nav-btn-hover: #151b2a;
+      --card-shadow: 0 10px 35px #00000025;
+      --input-bg: #090e18;
+      --table-border: #1a2231;
+      --eyebrow: #77849b;
+      --status-bg: #0d1c13;
+      --status-border: #23402d;
+      --status-color: #72e09a;
+      --chart-grid: #182030;
+      --chart-ticks: #66748a;
+      --chart-legend: #8d99ad;
+      --banner-bg: linear-gradient(100deg, #15132c, #0c1c28);
+      --banner-border: #2a3151;
+      --insight-icon-bg: #201b42;
+      --btn-bg: #111827;
+    }
+
+    [data-theme="light"] {
+      color-scheme: light;
+      --bg: #f1f5f9;
+      --bg-gradient: radial-gradient(circle at 70% -10%, #e2e8f0 0, #f1f5f9 45%);
+      --panel: #ffffff;
+      --panel2: #f8fafc;
+      --card-bg: linear-gradient(180deg, #ffffff, #f8fafc);
+      --sidebar-bg: rgba(255, 255, 255, .90);
+      --line: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --nav-btn-color: #475569;
+      --nav-btn-hover: #e2e8f0;
+      --card-shadow: 0 6px 25px rgba(15, 23, 42, 0.07);
+      --input-bg: #ffffff;
+      --table-border: #f1f5f9;
+      --eyebrow: #64748b;
+      --status-bg: #ecfdf5;
+      --status-border: #a7f3d0;
+      --status-color: #047857;
+      --chart-grid: #e2e8f0;
+      --chart-ticks: #64748b;
+      --chart-legend: #475569;
+      --banner-bg: linear-gradient(100deg, #eef2ff, #e0f2fe);
+      --banner-border: #cbd5e1;
+      --insight-icon-bg: #e0e7ff;
+      --btn-bg: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-gradient);
+      color: var(--text);
+      font: 14px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      transition: background .3s ease, color .3s ease
+    }
+
+    button,
+    input {
+      font: inherit
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh
+    }
+
+    .sidebar {
+      width: 240px;
+      border-right: 1px solid var(--line);
+      background: var(--sidebar-bg);
+      backdrop-filter: blur(18px);
+      padding: 22px 14px;
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 5;
+      transition: background .3s ease, border-color .3s ease
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      padding: 8px 6px 28px
+    }
+
+    .brand-logo {
+      height: 32px;
+      width: auto;
+      max-width: 180px;
+      object-fit: contain
+    }
+
+    .brand-icon {
+      height: 30px;
+      width: auto;
+      object-fit: contain;
+      display: none !important
+    }
+
+    .logo-theme-dark {
+      display: block;
+    }
+
+    .logo-theme-light {
+      display: none;
+    }
+
+    [data-theme="light"] .logo-theme-light {
+      display: block;
+    }
+
+    [data-theme="light"] .logo-theme-dark {
+      display: none;
+    }
+
+    .nav-label {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      padding: 0 11px 9px
+    }
+
+    .nav button {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--nav-btn-color);
+      text-align: left;
+      padding: 11px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 2px 0;
+      transition: background .2s ease, color .2s ease
+    }
+
+    .nav button:hover,
+    .nav button.active {
+      background: var(--nav-btn-hover);
+      color: var(--text)
+    }
+
+    .nav button span {
+      display: inline-block;
+      width: 25px
+    }
+
+    .side-bottom {
+      position: absolute;
+      bottom: 18px;
+      left: 14px;
+      right: 14px;
+      border-top: 1px solid var(--line);
+      padding-top: 15px;
+      color: var(--muted);
+      font-size: 12px
+    }
+
+    .main {
+      margin-left: 240px;
+      width: calc(100% - 240px);
+      padding: 30px 34px
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px
+    }
+
+    .eyebrow {
+      color: var(--eyebrow);
+      font-size: 12px
+    }
+
+    .title {
+      font-size: 27px;
+      font-weight: 750;
+      margin: 5px 0
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center
+    }
+
+    .status {
+      padding: 8px 11px;
+      border: 1px solid var(--status-border);
+      background: var(--status-bg);
+      border-radius: 9px;
+      color: var(--status-color);
+      font-size: 12px;
+      transition: background .3s ease, border-color .3s ease, color .3s ease
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: var(--btn-bg);
+      color: var(--text);
+      padding: 9px 13px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: background .2s ease, border-color .2s ease, color .2s ease
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      border: 0;
+      color: white
+    }
+
+    .btn:hover {
+      filter: brightness(1.08)
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px
+    }
+
+    .stats {
+      grid-template-columns: repeat(4, 1fr)
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 18px;
+      box-shadow: var(--card-shadow);
+      transition: background .3s ease, border-color .3s ease, box-shadow .3s ease
+    }
+
+    .stat-head {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 12px
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 750;
+      margin: 14px 0 4px
+    }
+
+    .delta {
+      font-size: 11px;
+      color: var(--muted)
+    }
+
+    .green {
+      color: var(--green)
+    }
+
+    .yellow {
+      color: var(--yellow)
+    }
+
+    .red {
+      color: var(--red)
+    }
+
+    .main-grid {
+      grid-template-columns: 1.8fr 1fr;
+      margin-top: 16px
+    }
+
+    .card-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 17px
+    }
+
+    .chart-wrap {
+      height: 275px
+    }
+
+    .mini-grid {
+      grid-template-columns: 1fr 1fr;
+      margin-top: 16px
+    }
+
+    .resource {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--table-border)
+    }
+
+    .resource:last-child {
+      border: 0
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+      margin-right: 8px
+    }
+
+    .resource-id {
+      font-weight: 650
+    }
+
+    .sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px
+    }
+
+    .bar {
+      height: 5px;
+      background: var(--line);
+      border-radius: 9px;
+      margin-top: 9px;
+      overflow: hidden
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 9px
+    }
+
+    .events {
+      max-height: 275px;
+      overflow: auto
+    }
+
+    .event {
+      padding: 11px 0;
+      border-bottom: 1px solid var(--table-border)
+    }
+
+    .event:last-child {
+      border: 0
+    }
+
+    .event-time {
+      color: var(--muted);
+      font-size: 10px;
+      margin-bottom: 4px
+    }
+
+    .event-msg {
+      font-size: 12px
+    }
+
+    .banner {
+      margin-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--banner-bg);
+      border: 1px solid var(--banner-border);
+      transition: background .3s ease, border-color .3s ease
+    }
+
+    .insight {
+      display: flex;
+      gap: 12px;
+      align-items: center
+    }
+
+    .insight-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: var(--insight-icon-bg);
+      display: grid;
+      place-items: center;
+      transition: background .3s ease
+    }
+
+    .page {
+      display: none
+    }
+
+    .page.active {
+      display: block
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px
+    }
+
+    .field label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 7px
+    }
+
+    .field input {
+      width: 100%;
+      background: var(--input-bg);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 11px;
+      transition: background .3s ease, border-color .3s ease, color .3s ease
+    }
+
+    .switch {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--table-border)
+    }
+
+    .switch input {
+      width: 18px;
+      height: 18px
+    }
+
+    .resource-table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    .resource-table th,
+    .resource-table td {
+      text-align: left;
+      padding: 13px;
+      border-bottom: 1px solid var(--table-border);
+      font-size: 12px
+    }
+
+    .resource-table th {
+      color: var(--muted);
+      font-weight: 500
+    }
+
+    .load-box {
+      text-align: center;
+      padding: 35px
+    }
+
+    .load-number {
+      font-size: 50px;
+      font-weight: 800;
+      margin: 10px
+    }
+
+    .dashboard-footer {
+      margin-top: 35px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .dashboard-footer-logo {
+      height: 24px;
+      width: auto;
+      align-self: flex-start;
+      opacity: 0.85;
+    }
+
+    .dashboard-footer-logo.logo-theme-light { display: none; }
+    .dashboard-footer-logo.logo-theme-dark { display: block; }
+    [data-theme="light"] .dashboard-footer-logo.logo-theme-light { display: block; }
+    [data-theme="light"] .dashboard-footer-logo.logo-theme-dark { display: none; }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    @media(max-width:900px) {
+      .sidebar {
+        width: 70px
+      }
+
+      .brand-logo {
+        display: none !important
+      }
+
+      .logo-theme-light,
+      .logo-theme-dark {
+        display: none !important
+      }
+
+      .icon-theme-dark {
+        display: block !important;
+      }
+
+      .icon-theme-light {
+        display: none !important;
+      }
+
+      [data-theme="light"] .icon-theme-light {
+        display: block !important;
+      }
+
+      [data-theme="light"] .icon-theme-dark {
+        display: none !important;
+      }
+
+      .nav-label,
+      .nav button b,
+      .side-bottom {
+        display: none
+      }
+
+      .main {
+        margin-left: 70px;
+        width: calc(100% - 70px);
+        padding: 22px
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr
+      }
+    }
+
+    @media(max-width:600px) {
+
+      .stats,
+      .mini-grid,
+      .form-grid {
+        grid-template-columns: 1fr
+      }
+
+      .topbar {
+        align-items: flex-start;
+        gap: 12px;
+        flex-direction: column
+      }
+
+      .main {
+        padding: 16px
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="logo-dark.png" alt="CloudScale" class="brand-logo logo-theme-dark">
+        <img src="logo-light.png" alt="CloudScale" class="brand-logo logo-theme-light">
+        <img src="icon-dark.png" alt="CloudScale" class="brand-icon icon-theme-dark">
+        <img src="icon-light.png" alt="CloudScale" class="brand-icon icon-theme-light">
+      </div>
+      <div class="nav-label">Workspace</div>
+      <div class="nav">
+        <button class="active" data-page="dashboard"><span>⌂</span><b>Overview</b></button>
+        <button data-page="resources"><span>◈</span><b>Resources</b></button>
+        <button data-page="monitoring"><span>◌</span><b>Monitoring</b></button>
+        <button data-page="autoscaling"><span>↗</span><b>Auto Scaling</b></button>
+        <button data-page="analytics"><span>▥</span><b>Analytics</b></button>
+        <button data-page="activity"><span>◷</span><b>Activity</b></button>
+      </div>
+      <div class="nav-label" style="margin-top:22px">System</div>
+      <div class="nav"><button data-page="settings"><span>⚙</span><b>Settings</b></button></div>
+      <div class="side-bottom">CloudScale v1.0<br>Local development mode</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">CLOUD INFRASTRUCTURE</div>
+          <div class="title" id="pageTitle">Good evening, Prajwal</div>
+        </div>
+        <div class="actions">
+          <button class="btn" id="themeToggleBtn" title="Switch Light/Dark theme">
+            <span id="themeIcon">☀️</span> <b id="themeLabel">Light</b>
+          </button>
+          <div class="status">● All systems operational</div>
+          <button class="btn" id="refreshBtn">Refresh</button>
+        </div>
+      </header>
+
+      <section id="dashboard" class="page active">
+        <div class="grid stats">
+          <div class="card">
+            <div class="stat-head">CPU UTILIZATION <span>◉</span></div>
+            <div class="stat-value" id="cpu">--%</div>
+            <div class="delta" id="cpuDelta">Live metric</div>
+          </div>
+          <div class="card">
+            <div class="stat-head">MEMORY <span>◫</span></div>
+            <div class="stat-value" id="memory">--%</div>
+            <div class="delta">Across active instances</div>
+          </div>
+          <div class="card">
+            <div class="stat-head">REQUEST RATE <span>↯</span></div>
+            <div class="stat-value" id="requests">--</div>
+            <div class="delta">requests / sec</div>
+          </div>
+          <div class="card">
+            <div class="stat-head">INSTANCES <span>▣</span></div>
+            <div class="stat-value" id="instances">--</div>
+            <div class="delta" id="scaleState">Auto-scaling enabled</div>
+          </div>
+        </div>
+
+        <div class="grid main-grid">
+          <div class="card">
+            <div class="card-title">Resource utilization</div>
+            <div class="chart-wrap"><canvas id="metricsChart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Infrastructure health</div>
+            <div id="resourceList"></div>
+          </div>
+        </div>
+
+        <div class="grid mini-grid">
+          <div class="card">
+            <div class="card-title">Recent activity</div>
+            <div class="events" id="events"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Automated infrastructure insight</div>
+            <div class="insight">
+              <div class="insight-icon">✦</div>
+              <div><b id="insightTitle">Analyzing workload…</b>
+                <div class="sub" id="insightMessage">Connecting to monitoring service.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card banner">
+          <div><b>Run a controlled load test</b>
+            <div class="sub">Generate synthetic traffic and watch the auto-scaler respond.</div>
+          </div><button class="btn primary" id="loadBtn">Generate Load</button>
+        </div>
+      </section>
+
+      <section id="resources" class="page">
+        <div class="card">
+          <div class="card-title">Active resources</div>
+          <table class="resource-table">
+            <thead>
+              <tr>
+                <th>INSTANCE</th>
+                <th>STATUS</th>
+                <th>CPU</th>
+                <th>MEMORY</th>
+                <th>REGION</th>
+                <th>TYPE</th>
+              </tr>
+            </thead>
+            <tbody id="resourceTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="monitoring" class="page">
+        <div class="card">
+          <div class="card-title">Live monitoring</div>
+          <div class="chart-wrap" style="height:430px"><canvas id="monitorChart"></canvas></div>
+        </div>
+      </section>
+
+      <section id="autoscaling" class="page">
+        <div class="card">
+          <div class="card-title">Auto-scaling policy</div>
+          <div class="switch">
+            <div><b>Automatic scaling</b>
+              <div class="sub">Allow CloudScale to change instance count automatically.</div>
+            </div><input id="enabled" type="checkbox">
+          </div>
+          <div class="form-grid" style="margin-top:18px">
+            <div class="field"><label>Minimum instances</label><input id="minInstances" type="number" min="1"></div>
+            <div class="field"><label>Maximum instances</label><input id="maxInstances" type="number" min="1"></div>
+            <div class="field"><label>Scale UP when CPU exceeds (%)</label><input id="upThreshold" type="number" min="1"
+                max="100"></div>
+            <div class="field"><label>Scale DOWN when CPU falls below (%)</label><input id="downThreshold" type="number"
+                min="1" max="100"></div>
+          </div>
+          <button class="btn primary" id="savePolicy" style="margin-top:18px">Save Policy</button>
+        </div>
+      </section>
+
+      <section id="analytics" class="page">
+        <div class="grid stats">
+          <div class="card">
+            <div class="stat-head">AVG CPU</div>
+            <div class="stat-value" id="avgCpu">--%</div>
+          </div>
+          <div class="card">
+            <div class="stat-head">PEAK CPU</div>
+            <div class="stat-value" id="peakCpu">--%</div>
+          </div>
+          <div class="card">
+            <div class="stat-head">PEAK REQUESTS</div>
+            <div class="stat-value" id="peakReq">--</div>
+          </div>
+          <div class="card">
+            <div class="stat-head">SCALING EVENTS</div>
+            <div class="stat-value" id="scaleEvents">--</div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-title">Workload trend</div>
+          <div class="chart-wrap" style="height:400px"><canvas id="analyticsChart"></canvas></div>
+        </div>
+      </section>
+
+      <section id="activity" class="page">
+        <div class="card">
+          <div class="card-title">System activity</div>
+          <div class="events" id="activityEvents" style="max-height:600px"></div>
+        </div>
+      </section>
+
+      <section id="settings" class="page">
+        <div class="card">
+          <div class="card-title">Application settings</div>
+          <div class="switch">
+            <div><b>Appearance theme</b>
+              <div class="sub">Toggle between Light and Dark mode user interface.</div>
+            </div><button class="btn" id="settingsThemeBtn">Switch Theme</button>
+          </div>
+          <div class="switch">
+            <div><b>Monitoring interval</b>
+              <div class="sub">Dashboard refreshes every 3 seconds.</div>
+            </div><span>3s</span>
+          </div>
+          <div class="switch">
+            <div><b>Environment</b>
+              <div class="sub">Current development environment.</div>
+            </div><span>LOCAL</span>
+          </div>
+          <div class="switch">
+            <div><b>Backend</b>
+              <div class="sub">FastAPI monitoring service.</div>
+            </div><span id="backendStatus">Checking…</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="dashboard-footer">
+        <img src="logo-dark.png" alt="CloudScale" class="dashboard-footer-logo logo-theme-dark">
+        <img src="logo-light.png" alt="CloudScale" class="dashboard-footer-logo logo-theme-light">
+        <div class="footer-note">CloudScale is currently running with a simulated infrastructure engine. AWS integration will be added after the local MVP is stable.</div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const API = "/api";
+    let chart, monitorChart, analyticsChart, lastHistory = [];
+
+    async function get(path) { const r = await fetch(API + path); if (!r.ok) throw new Error("API error"); return r.json(); }
+    async function post(path, body) { const r = await fetch(API + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); return r.json(); }
+
+    function getChartColors() {
+      const isDark = (document.documentElement.getAttribute("data-theme") || "dark") === "dark";
+      return {
+        grid: isDark ? "#182030" : "#e2e8f0",
+        ticks: isDark ? "#66748a" : "#64748b",
+        legend: isDark ? "#8d99ad" : "#475569"
+      };
+    }
+
+    function updateChartThemes() {
+      const c = getChartColors();
+      [chart, monitorChart, analyticsChart].forEach(inst => {
+        if (!inst) return;
+        if (inst.options.scales && inst.options.scales.x) {
+          if (inst.options.scales.x.grid) inst.options.scales.x.grid.color = c.grid;
+          if (inst.options.scales.x.ticks) inst.options.scales.x.ticks.color = c.ticks;
+        }
+        if (inst.options.scales && inst.options.scales.y) {
+          if (inst.options.scales.y.grid) inst.options.scales.y.grid.color = c.grid;
+          if (inst.options.scales.y.ticks) inst.options.scales.y.ticks.color = c.ticks;
+        }
+        if (inst.options.plugins && inst.options.plugins.legend && inst.options.plugins.legend.labels) {
+          inst.options.plugins.legend.labels.color = c.legend;
+        }
+        inst.update("none");
+      });
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("theme", theme);
+      const isDark = theme === "dark";
+      const icon = document.getElementById("themeIcon");
+      const label = document.getElementById("themeLabel");
+      if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+      if (label) label.textContent = isDark ? "Light Mode" : "Dark Mode";
+      updateChartThemes();
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme") || "dark";
+      applyTheme(current === "dark" ? "light" : "dark");
+    }
+
+    document.getElementById("themeToggleBtn").onclick = toggleTheme;
+    const settingsBtn = document.getElementById("settingsThemeBtn");
+    if (settingsBtn) settingsBtn.onclick = toggleTheme;
+
+    function makeChart(id, data, large = false) {
+      const el = document.getElementById(id); if (!el) return null;
+      const c = getChartColors();
+      return new Chart(el, {
+        type: "line", data: {
+          labels: data.map(x => x.time), datasets: [
+            { label: "CPU %", data: data.map(x => x.cpu), borderColor: "#8b5cf6", backgroundColor: "#8b5cf615", fill: true, tension: .4, pointRadius: 0 },
+            { label: "Memory %", data: data.map(x => x.memory), borderColor: "#06b6d4", backgroundColor: "transparent", fill: false, tension: .4, pointRadius: 0 }
+          ]
+        }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: c.legend, boxWidth: 12 } } }, scales: { x: { grid: { color: c.grid }, ticks: { color: c.ticks, maxTicksLimit: 8 } }, y: { min: 0, max: 100, grid: { color: c.grid }, ticks: { color: c.ticks } } } }
+      });
+    }
+
+    async function refresh() {
+      try {
+        const m = await get("/metrics"); lastHistory = m.history;
+        document.getElementById("cpu").textContent = m.cpu + "%"; document.getElementById("memory").textContent = m.memory + "%";
+        document.getElementById("requests").textContent = m.requests.toLocaleString(); document.getElementById("instances").textContent = m.instances;
+        document.getElementById("scaleState").textContent = m.autoscaling ? "Auto-scaling enabled" : "Manual scaling";
+        const res = await get("/resources"); document.getElementById("resourceList").innerHTML = res.map(x => `<div class="resource"><div><div class="resource-id"><span class="dot"></span>${x.id}</div><div class="sub">${x.type} · ${x.region}</div></div><div style="width:90px"><div class="sub">${x.cpu}% CPU</div><div class="bar"><i style="width:${x.cpu}%"></i></div></div></div>`).join("");
+        document.getElementById("resourceTable").innerHTML = res.map(x => `<tr><td><b>${x.id}</b></td><td><span class="green">● ${x.status}</span></td><td>${x.cpu}%</td><td>${x.memory}%</td><td>${x.region}</td><td>${x.type}</td></tr>`).join("");
+        const ev = await get("/activity"); document.getElementById("events").innerHTML = ev.slice(0, 8).map(e => `<div class="event"><div class="event-time">${e.time}</div><div class="event-msg">${e.message}</div></div>`).join("") || "<div class='sub'>No events yet.</div>"; document.getElementById("activityEvents").innerHTML = ev.map(e => `<div class="event"><div class="event-time">${e.time} · ${e.kind}</div><div class="event-msg">${e.message}</div></div>`).join("");
+        const ins = await get("/insights"); document.getElementById("insightTitle").textContent = ins.title; document.getElementById("insightMessage").textContent = ins.message;
+        if (chart) { chart.data.labels = m.history.map(x => x.time); chart.data.datasets[0].data = m.history.map(x => x.cpu); chart.data.datasets[1].data = m.history.map(x => x.memory); chart.update("none"); }
+        if (monitorChart) { monitorChart.data.labels = m.history.map(x => x.time); monitorChart.data.datasets[0].data = m.history.map(x => x.cpu); monitorChart.data.datasets[1].data = m.history.map(x => x.memory); monitorChart.update("none"); }
+        if (analyticsChart) { analyticsChart.data.labels = m.history.map(x => x.time); analyticsChart.data.datasets[0].data = m.history.map(x => x.requests); analyticsChart.update("none"); }
+        const vals = m.history.map(x => x.cpu); document.getElementById("avgCpu").textContent = (vals.reduce((a, b) => a + b, 0) / (vals.length || 1)).toFixed(1) + "%"; document.getElementById("peakCpu").textContent = (Math.max(...vals, 0)).toFixed(1) + "%"; document.getElementById("peakReq").textContent = Math.max(...m.history.map(x => x.requests), 0).toLocaleString(); document.getElementById("scaleEvents").textContent = ev.filter(x => x.kind === "scale").length;
+        document.getElementById("backendStatus").textContent = "CONNECTED";
+      } catch (e) { document.getElementById("backendStatus").textContent = "OFFLINE"; console.error(e); }
+    }
+
+    async function loadPolicy() {
+      const p = await get("/autoscaling"); enabled.checked = p.enabled; minInstances.value = p.min_instances; maxInstances.value = p.max_instances; upThreshold.value = p.scale_up_threshold; downThreshold.value = p.scale_down_threshold;
+    }
+
+    function getGreeting(name = "Prajwal") {
+      const hour = new Date().getHours();
+      if (hour >= 5 && hour < 12) return `Good morning, ${name}`;
+      if (hour >= 12 && hour < 16) return `Good afternoon, ${name}`;
+      return `Good evening, ${name}`;
+    }
+
+    function updatePageTitle(pageName, labelText) {
+      const el = document.getElementById("pageTitle");
+      if (!el) return;
+      if (pageName === "dashboard" || !pageName) {
+        el.textContent = getGreeting("Prajwal");
+      } else {
+        el.textContent = labelText;
+      }
+    }
+
+    document.querySelectorAll(".nav button").forEach(b => b.onclick = async () => {
+      document.querySelectorAll(".nav button").forEach(x => x.classList.remove("active")); b.classList.add("active");
+      document.querySelectorAll(".page").forEach(x => x.classList.remove("active")); document.getElementById(b.dataset.page).classList.add("active");
+      updatePageTitle(b.dataset.page, b.textContent.trim());
+      if (b.dataset.page === "autoscaling") await loadPolicy();
+    });
+
+    document.getElementById("refreshBtn").onclick = refresh;
+    document.getElementById("loadBtn").onclick = async function () { const running = this.textContent.includes("Stop"); await post("/load-test", { enabled: !running }); this.textContent = running ? "Generate Load" : "Stop Load Test"; this.classList.toggle("primary", !running); };
+    document.getElementById("savePolicy").onclick = async () => { await post("/autoscaling", { enabled: enabled.checked, min_instances: +minInstances.value, max_instances: +maxInstances.value, scale_up_threshold: +upThreshold.value, scale_down_threshold: +downThreshold.value }); await refresh(); alert("Auto-scaling policy saved."); };
+
+    chart = makeChart("metricsChart", []);
+    monitorChart = makeChart("monitorChart", []);
+    const initC = getChartColors();
+    analyticsChart = new Chart(document.getElementById("analyticsChart"), { type: "bar", data: { labels: [], datasets: [{ label: "Requests / sec", data: [], backgroundColor: "#8b5cf688", borderRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: initC.legend } } }, scales: { x: { grid: { display: false }, ticks: { color: initC.ticks } }, y: { grid: { color: initC.grid }, ticks: { color: initC.ticks } } } } });
+
+    applyTheme(document.documentElement.getAttribute("data-theme") || "dark");
+    updatePageTitle("dashboard");
+    refresh(); setInterval(refresh, 3000);
+  </script>
+</body>
+
+</html>

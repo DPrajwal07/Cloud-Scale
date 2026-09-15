@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 50" width="240" height="50" fill="none">
+  <defs>
+    <linearGradient id="cloudGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#533afd" />
+      <stop offset="100%" stop-color="#087DB3" />
+    </linearGradient>
+    <linearGradient id="pulseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#665efd" />
+      <stop offset="100%" stop-color="#00D2FF" />
+    </linearGradient>
+  </defs>
+  <!-- Icon -->
+  <g transform="translate(4, 5)">
+    <!-- Shield / Cloud Background shape -->
+    <rect x="2" y="2" width="36" height="36" rx="10" fill="url(#cloudGrad)" opacity="0.1" stroke="url(#cloudGrad)" stroke-width="1.5"/>
+    
+    <!-- Cloud Nodes -->
+    <path d="M12 25 C12 21, 15 18, 19 18 C20.5 15.5, 23.5 14, 27 15 C30 16, 32 18.5, 32 21 C34 21, 35.5 22.5, 35.5 24.5 C35.5 26.5, 34 28, 32 28 L14 28 C12.5 28, 11 26.5, 12 25 Z" fill="none" stroke="url(#cloudGrad)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    
+    <!-- Scaling Pulse Lines -->
+    <path d="M14 23 L18 20 L22 24 L27 18 L31 22" fill="none" stroke="url(#pulseGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Active Node Dot -->
+    <circle cx="27" cy="18" r="2.5" fill="#00D2FF">
+      <animate attributeName="r" values="2;3.5;2" dur="2s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Brand Text -->
+  <text x="52" y="31" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="700" fill="#0d253d" letter-spacing="-0.5px">Cloud<tspan fill="#533afd">Scale</tspan></text>
+  
+  <!-- MVP Badge -->
+  <rect x="175" y="16" width="36" height="16" rx="4" fill="#533afd" fill-opacity="0.1"/>
+  <text x="181" y="27" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="9" font-weight="700" fill="#533afd" letter-spacing="0.5px">MVP</text>
+</svg>
