@@ -801,14 +801,7 @@
   </div>
 
   <script>
-    const getApiBase = () => {
-      if (window.location.protocol === 'file:') return "http://localhost:8000/api";
-      if (window.location.port && window.location.port !== '8000' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-        return "http://localhost:8000/api";
-      }
-      return "/api";
-    };
-    const API = getApiBase();
+    const API = "/api";
     let chart, monitorChart, analyticsChart, lastHistory = [];
 
     async function get(path) { const r = await fetch(API + path); if (!r.ok) throw new Error("API error"); return r.json(); }
