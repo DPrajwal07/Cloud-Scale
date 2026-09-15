@@ -285,7 +285,14 @@ function initLiveHeroTelemetry() {
 
   if (!heroCpuVal || !heroConsole) return;
 
-  const API_URL = "/api";
+  const getApiBase = () => {
+    if (window.location.protocol === 'file:') return "http://localhost:8000/api";
+    if (window.location.port && window.location.port !== '8000' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      return "http://localhost:8000/api";
+    }
+    return "/api";
+  };
+  const API_URL = getApiBase();
 
   async function fetchHeroTelemetry() {
     try {
