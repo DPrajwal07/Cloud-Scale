@@ -2,6 +2,8 @@
 
 > **Monitor. Analyze. Scale.**
 
+![CloudScale Overview](assets/images/cloudscale-preview.png)
+
 CloudScale is a cloud infrastructure monitoring and auto-scaling **simulation platform** built as a Cloud Computing internship project. It provides real-time visualization of resource utilization telemetry, workload behavior, system activity logs, and automated scaling decisions through a unified web interface and Python FastAPI backend.
 
 ---
@@ -235,6 +237,7 @@ scale_down_threshold = 30.0 # Scale DOWN when CPU <= 30%
     ├── favicon.png            # Root favicon
     ├── favicon.svg            # Vector favicon
     └── images/                # Landing page image assets & icons
+        ├── cloudscale-preview.png
         ├── logo-light.png
         ├── logo-dark.png
         ├── icon-light.png
