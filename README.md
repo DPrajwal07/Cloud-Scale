@@ -302,7 +302,7 @@ This project is prepared for cloud deployment on **Vercel**:
 - **Serverless Entry Point**: [`api/index.py`](file:///Users/prajwald/Documents/Landing%20Page%20/api/index.py) exposes the FastAPI instance to Vercel's Python runtime.
 - **Routing**: [`vercel.json`](file:///Users/prajwald/Documents/Landing%20Page%20/vercel.json) maps `/api/*` requests to the serverless function while serving static assets (`index.html`, `dashboard/index.html`, `css`, `js`, `assets`) directly.
 
-🔗 **Live Application Link**: [Live Demo](ADD_VERCEL_URL_AFTER_DEPLOYMENT) *(Update placeholder after Vercel deployment)*
+🔗 **Live Application Link**: [Live Demo](https://cloud-scale-ten.vercel.app/) *(Update placeholder after Vercel deployment)*
 
 ---
 
