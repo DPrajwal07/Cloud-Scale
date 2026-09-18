@@ -1370,4 +1370,119 @@ button, input {
   .arch-arrow {
     transform: rotate(90deg);
   }
+
+  .container {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .hero {
+    padding-top: calc(var(--header-height) + 2rem);
+    padding-bottom: 3rem;
+  }
+
+  .hero-tagline {
+    font-size: clamp(2rem, 6vw, 2.6rem);
+  }
+
+  .hero-ctas {
+    width: 100%;
+  }
+
+  .hero-ctas .btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .telemetry-widget {
+    padding: 1.25rem;
+  }
+
+  .telemetry-stats-row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .stat-mini-card {
+    padding: 0.6rem 0.5rem;
+  }
+
+  .stat-val {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .navbar {
+    gap: 0.5rem;
+  }
+
+  .nav-brand img {
+    height: 38px !important;
+  }
+
+  .nav-actions .btn-sm {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .hero {
+    padding-top: calc(var(--header-height) + 1.5rem);
+    padding-bottom: 2.5rem;
+  }
+
+  .hero-tagline {
+    font-size: 1.9rem;
+    line-height: 1.18;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .hero-description {
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+
+  .hero-ctas {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+  }
+
+  .hero-ctas .btn {
+    width: 100%;
+  }
+
+  .telemetry-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .telemetry-status-badge {
+    margin-left: auto;
+  }
+
+  .telemetry-stats-row {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+
+  .preview-iframe-wrapper {
+    height: 420px;
+  }
+
+  .cta-box {
+    padding: 2rem 1.25rem;
+  }
+
+  .cta-title {
+    font-size: 1.75rem;
+  }
 }

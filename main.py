@@ -9,7 +9,53 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+class VercelPathMiddleware:
+    """
+    ASGI middleware to resolve Vercel serverless function rewrites.
+    When Vercel rewrites /api/(.*) to /api/index.py, the raw path arriving at the
+    function is '/api/index.py'. Vercel provides the client's original requested
+    path in 'x-matched-path' or 'x-forwarded-uri' headers.
+    This middleware restores scope['path'] to the true requested endpoint so FastAPI
+    routes match reliably without 404 Not Found errors.
+    """
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            path = scope.get("path", "")
+            headers = dict(scope.get("headers", []))
+
+            # Vercel injection headers containing the original client URL
+            matched_path = (
+                headers.get(b"x-matched-path", b"")
+                or headers.get(b"x-forwarded-uri", b"")
+                or headers.get(b"x-invoke-path", b"")
+                or headers.get(b"x-original-uri", b"")
+            ).decode("latin1")
+
+            if matched_path and matched_path != path:
+                clean_matched = matched_path.split("?")[0]
+                if clean_matched and clean_matched not in ("/api/index.py", "/index.py"):
+                    scope["path"] = clean_matched
+                    path = clean_matched
+
+            # Handle direct requests or rewrites targeting /api/index.py
+            if path in ("/api/index.py", "/api/index.py/", "/index.py", "/index.py/"):
+                scope["path"] = "/api/health"
+            elif path.startswith("/api/index.py/"):
+                sub = path[len("/api/index.py"):]
+                scope["path"] = sub if sub.startswith("/api") else "/api" + sub
+            elif path.startswith("/index.py/"):
+                sub = path[len("/index.py"):]
+                scope["path"] = sub if sub.startswith("/api") else "/api" + sub
+
+        await self.app(scope, receive, send)
+
 app = FastAPI(title="CloudScale API", version="1.0.0", redirect_slashes=False)
+
+# Register Vercel ASGI path middleware
+app.add_middleware(VercelPathMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -215,6 +261,72 @@ def insights():
         "title": "Infrastructure operating normally",
         "message": "Current workload is within the configured operating range. No scaling intervention is required."
     }
+
+# ==============================================================================
+# Vercel Serverless Function Explicit Route Aliases
+# Ensures that even direct HTTP requests to /api/index.py (e.g. from health checkers,
+# browser address bars, or unrewritten routes) resolve with 200 OK.
+# ==============================================================================
+@app.get("/api/index.py")
+@app.get("/api/index.py/")
+@app.get("/index.py")
+@app.get("/index.py/")
+def api_index_file():
+    return {
+        "status": "healthy",
+        "service": "cloudscale-api",
+        "version": "1.0.0",
+        "health": "/api/health",
+        "metrics": "/api/metrics",
+        "resources": "/api/resources",
+        "activity": "/api/activity",
+        "insights": "/api/insights",
+        "autoscaling": "/api/autoscaling",
+        "platform": "vercel-compatible"
+    }
+
+@app.get("/api/index.py/health")
+@app.get("/api/index.py/health/")
+def api_index_health():
+    return health()
+
+@app.get("/api/index.py/metrics")
+@app.get("/api/index.py/metrics/")
+def api_index_metrics():
+    return metrics()
+
+@app.get("/api/index.py/resources")
+@app.get("/api/index.py/resources/")
+def api_index_resources():
+    return resources()
+
+@app.get("/api/index.py/activity")
+@app.get("/api/index.py/activity/")
+def api_index_activity():
+    return activity()
+
+@app.get("/api/index.py/insights")
+@app.get("/api/index.py/insights/")
+def api_index_insights():
+    return insights()
+
+@app.get("/api/index.py/autoscaling")
+@app.get("/api/index.py/autoscaling/")
+def api_index_autoscaling():
+    return autoscaling()
+
+@app.post("/api/index.py/autoscaling")
+@app.post("/api/index.py/autoscaling/")
+def api_index_update_autoscaling(config: ScalingConfig):
+    return update_autoscaling(config)
+
+@app.post("/api/index.py/load-test")
+@app.post("/api/index.py/load-test/")
+def api_index_load_test(config: LoadConfig):
+    return load_test(config)
+
+# Export for both app and handler conventions in Vercel
+handler = app
 
 # Local static file mounts for dev server
 if os.path.exists(os.path.join(BASE_DIR, "css")):

@@ -285,14 +285,31 @@ function initLiveHeroTelemetry() {
 
   if (!heroCpuVal || !heroConsole) return;
 
-  const API_URL = "/api";
+  const getApiUrl = () => {
+    if (window.location.protocol === 'file:') return "http://localhost:8000/api";
+    if (window.location.port && window.location.port !== '8000' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      return "http://localhost:8000/api";
+    }
+    return "/api";
+  };
+  let API_URL = getApiUrl();
 
   async function fetchHeroTelemetry() {
     try {
-      const [metricsRes, activityRes] = await Promise.all([
+      let [metricsRes, activityRes] = await Promise.all([
         fetch(`${API_URL}/metrics`).then(r => r.ok ? r.json() : null).catch(() => null),
         fetch(`${API_URL}/activity`).then(r => r.ok ? r.json() : null).catch(() => null)
       ]);
+
+      // If primary /api call was unmapped on Vercel, attempt direct /api/index.py fallback
+      if (!metricsRes && API_URL === "/api") {
+        const fallbackRes = await fetch(`/api/index.py/metrics`).then(r => r.ok ? r.json() : null).catch(() => null);
+        if (fallbackRes) {
+          API_URL = "/api/index.py";
+          metricsRes = fallbackRes;
+          activityRes = await fetch(`/api/index.py/activity`).then(r => r.ok ? r.json() : null).catch(() => null);
+        }
+      }
 
       if (metricsRes) {
         const cpu = metricsRes.cpu;

@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>CloudScale — Intelligent Cloud Infrastructure</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="shortcut icon" href="favicon.ico">
@@ -520,18 +520,50 @@
       font-size: 11px;
     }
 
-    @media(max-width:900px) {
+    /* --------------------------------------------------------------------------
+       Mobile & Responsive Breakpoints
+       -------------------------------------------------------------------------- */
+    .menu-toggle-btn {
+      display: none;
+    }
+
+    .sidebar-close-btn {
+      display: none;
+    }
+
+    .sidebar-backdrop {
+      display: none;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-top: 14px;
+      border-radius: 8px;
+    }
+
+    .resource-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 520px;
+    }
+
+    @media(max-width: 900px) and (min-width: 769px) {
       .sidebar {
-        width: 70px
+        width: 70px;
       }
 
-      .brand-logo {
-        display: none !important
-      }
-
+      .brand-logo,
       .logo-theme-light,
       .logo-theme-dark {
-        display: none !important
+        display: none !important;
       }
 
       .icon-theme-dark {
@@ -553,40 +585,259 @@
       .nav-label,
       .nav button b,
       .side-bottom {
-        display: none
+        display: none;
       }
 
       .main {
         margin-left: 70px;
         width: calc(100% - 70px);
-        padding: 22px
+        padding: 22px;
       }
 
       .stats {
-        grid-template-columns: 1fr 1fr
+        grid-template-columns: 1fr 1fr;
       }
 
       .main-grid {
-        grid-template-columns: 1fr
+        grid-template-columns: 1fr;
       }
     }
 
-    @media(max-width:600px) {
-
-      .stats,
-      .mini-grid,
-      .form-grid {
-        grid-template-columns: 1fr
+    @media(max-width: 768px) {
+      .menu-toggle-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        background: var(--panel2);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        color: var(--text);
+        cursor: pointer;
+        padding: 0;
+        transition: background 0.2s ease, border-color 0.2s ease;
       }
 
-      .topbar {
-        align-items: flex-start;
-        gap: 12px;
-        flex-direction: column
+      .menu-toggle-btn:hover {
+        background: var(--nav-btn-hover);
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 270px;
+        max-width: 85vw;
+        background: var(--panel);
+        border-right: 1px solid var(--line);
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+      }
+
+      .sidebar-backdrop.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .sidebar-close-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: auto;
+        background: transparent;
+        border: none;
+        font-size: 20px;
+        color: var(--muted);
+        cursor: pointer;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        transition: color 0.2s, background 0.2s;
+      }
+
+      .sidebar-close-btn:hover {
+        color: var(--text);
+        background: var(--nav-btn-hover);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        padding: 14px 10px 20px;
+      }
+
+      .brand-logo {
+        display: block !important;
+        height: 30px;
+      }
+
+      .brand-icon {
+        display: none !important;
+      }
+
+      .nav-label,
+      .nav button b,
+      .side-bottom {
+        display: block;
+      }
+
+      .nav button {
+        padding: 13px 14px;
+        font-size: 14px;
+        min-height: 44px;
       }
 
       .main {
-        padding: 16px
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100vw;
+        padding: 18px 16px !important;
+        box-sizing: border-box;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        margin-bottom: 22px;
+      }
+
+      .title {
+        font-size: 22px;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .actions .btn,
+      .actions .status {
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .stat-value {
+        font-size: 24px;
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .mini-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .chart-wrap {
+        height: 230px !important;
+      }
+
+      .banner {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+      }
+
+      .banner .btn {
+        width: 100%;
+        min-height: 44px;
+        text-align: center;
+        justify-content: center;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      input[type="number"],
+      input[type="text"] {
+        font-size: 16px;
+        min-height: 44px;
+        padding: 10px 12px;
+      }
+
+      .switch {
+        padding: 14px 0;
+      }
+
+      button {
+        touch-action: manipulation;
+      }
+    }
+
+    @media(max-width: 480px) {
+      .stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .card {
+        padding: 14px;
+      }
+
+      .stat-value {
+        font-size: 20px;
+        margin: 8px 0 2px;
+      }
+
+      .topbar {
+        gap: 12px;
+      }
+
+      .title {
+        font-size: 20px;
+      }
+
+      .actions .btn {
+        flex: 1 1 auto;
+      }
+
+      .actions .status {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
       }
     }
   </style>
@@ -594,12 +845,13 @@
 
 <body>
   <div class="app">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="brand">
         <img src="logo-dark.png" alt="CloudScale" class="brand-logo logo-theme-dark">
         <img src="logo-light.png" alt="CloudScale" class="brand-logo logo-theme-light">
         <img src="icon-dark.png" alt="CloudScale" class="brand-icon icon-theme-dark">
         <img src="icon-light.png" alt="CloudScale" class="brand-icon icon-theme-light">
+        <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close navigation">✕</button>
       </div>
       <div class="nav-label">Workspace</div>
       <div class="nav">
@@ -612,21 +864,31 @@
       </div>
       <div class="nav-label" style="margin-top:22px">System</div>
       <div class="nav"><button data-page="settings"><span>⚙</span><b>Settings</b></button></div>
-      <div class="side-bottom">CloudScale v1.0<br>Local development mode</div>
+      <div class="side-bottom">CloudScale v1.0<br>Local &amp; Vercel ready</div>
     </aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
     <main class="main">
       <header class="topbar">
-        <div>
-          <div class="eyebrow">CLOUD INFRASTRUCTURE</div>
-          <div class="title" id="pageTitle">Good evening, Prajwal</div>
+        <div class="topbar-left">
+          <button class="menu-toggle-btn" id="menuToggleBtn" aria-label="Open Navigation Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <div>
+            <div class="eyebrow" id="pageEyebrow">CLOUD INFRASTRUCTURE</div>
+            <div class="title" id="pageTitle">Good evening, Prajwal</div>
+          </div>
         </div>
         <div class="actions">
           <button class="btn" id="themeToggleBtn" title="Switch Light/Dark theme">
             <span id="themeIcon">☀️</span> <b id="themeLabel">Light</b>
           </button>
-          <div class="status">● All systems operational</div>
-          <button class="btn" id="refreshBtn">Refresh</button>
+          <div class="status" id="liveStatusBadge">● All systems operational</div>
+          <button class="btn" id="refreshBtn">↻ Refresh</button>
         </div>
       </header>
 
@@ -691,19 +953,21 @@
       <section id="resources" class="page">
         <div class="card">
           <div class="card-title">Active resources</div>
-          <table class="resource-table">
-            <thead>
-              <tr>
-                <th>INSTANCE</th>
-                <th>STATUS</th>
-                <th>CPU</th>
-                <th>MEMORY</th>
-                <th>REGION</th>
-                <th>TYPE</th>
-              </tr>
-            </thead>
-            <tbody id="resourceTable"></tbody>
-          </table>
+          <div class="table-responsive">
+            <table class="resource-table">
+              <thead>
+                <tr>
+                  <th>INSTANCE</th>
+                  <th>STATUS</th>
+                  <th>CPU</th>
+                  <th>MEMORY</th>
+                  <th>REGION</th>
+                  <th>TYPE</th>
+                </tr>
+              </thead>
+              <tbody id="resourceTable"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -814,11 +1078,84 @@
       }
       return "/api";
     };
-    const API = getApiBase();
+    let API = getApiBase();
     let chart, monitorChart, analyticsChart, lastHistory = [];
 
-    async function get(path) { const r = await fetch(API + path); if (!r.ok) throw new Error("API error"); return r.json(); }
-    async function post(path, body) { const r = await fetch(API + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); return r.json(); }
+    // Robust fetch with automatic serverless endpoint fallback
+    async function get(path) {
+      try {
+        const r = await fetch(API + path);
+        if (r.ok) return await r.json();
+        throw new Error("HTTP " + r.status);
+      } catch (err) {
+        // Fallback for Vercel if /api route mapping had an issue: try direct /api/index.py
+        if (API === "/api") {
+          try {
+            const fallbackUrl = "/api/index.py" + path;
+            const r2 = await fetch(fallbackUrl);
+            if (r2.ok) {
+              API = "/api/index.py";
+              return await r2.json();
+            }
+          } catch (e2) {}
+        }
+        throw err;
+      }
+    }
+
+    async function post(path, body) {
+      try {
+        const r = await fetch(API + path, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        if (r.ok) return await r.json();
+        throw new Error("HTTP " + r.status);
+      } catch (err) {
+        if (API === "/api") {
+          try {
+            const fallbackUrl = "/api/index.py" + path;
+            const r2 = await fetch(fallbackUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body)
+            });
+            if (r2.ok) {
+              API = "/api/index.py";
+              return await r2.json();
+            }
+          } catch (e2) {}
+        }
+        throw err;
+      }
+    }
+
+    // Mobile Drawer Navigation Logic
+    const menuToggleBtn = document.getElementById("menuToggleBtn");
+    const sidebar = document.getElementById("sidebar");
+    const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+    const sidebarCloseBtn = document.getElementById("sidebarCloseBtn");
+
+    function openSidebar() {
+      if (sidebar) sidebar.classList.add("open");
+      if (sidebarBackdrop) sidebarBackdrop.classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSidebar() {
+      if (sidebar) sidebar.classList.remove("open");
+      if (sidebarBackdrop) sidebarBackdrop.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
+    if (menuToggleBtn) menuToggleBtn.onclick = openSidebar;
+    if (sidebarCloseBtn) sidebarCloseBtn.onclick = closeSidebar;
+    if (sidebarBackdrop) sidebarBackdrop.onclick = closeSidebar;
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 768) closeSidebar();
+    });
 
     function getChartColors() {
       const isDark = (document.documentElement.getAttribute("data-theme") || "dark") === "dark";
@@ -855,7 +1192,7 @@
       const icon = document.getElementById("themeIcon");
       const label = document.getElementById("themeLabel");
       if (icon) icon.textContent = isDark ? "☀️" : "🌙";
-      if (label) label.textContent = isDark ? "Light Mode" : "Dark Mode";
+      if (label) label.textContent = isDark ? "Light" : "Dark";
       updateChartThemes();
     }
 
@@ -877,7 +1214,7 @@
             { label: "CPU %", data: data.map(x => x.cpu), borderColor: "#8b5cf6", backgroundColor: "#8b5cf615", fill: true, tension: .4, pointRadius: 0 },
             { label: "Memory %", data: data.map(x => x.memory), borderColor: "#06b6d4", backgroundColor: "transparent", fill: false, tension: .4, pointRadius: 0 }
           ]
-        }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: c.legend, boxWidth: 12 } } }, scales: { x: { grid: { color: c.grid }, ticks: { color: c.ticks, maxTicksLimit: 8 } }, y: { min: 0, max: 100, grid: { color: c.grid }, ticks: { color: c.ticks } } } }
+        }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: c.legend, boxWidth: 12 } } }, scales: { x: { grid: { color: c.grid }, ticks: { color: c.ticks, maxTicksLimit: 6 } }, y: { min: 0, max: 100, grid: { color: c.grid }, ticks: { color: c.ticks } } } }
       });
     }
 
@@ -895,8 +1232,30 @@
         if (monitorChart) { monitorChart.data.labels = m.history.map(x => x.time); monitorChart.data.datasets[0].data = m.history.map(x => x.cpu); monitorChart.data.datasets[1].data = m.history.map(x => x.memory); monitorChart.update("none"); }
         if (analyticsChart) { analyticsChart.data.labels = m.history.map(x => x.time); analyticsChart.data.datasets[0].data = m.history.map(x => x.requests); analyticsChart.update("none"); }
         const vals = m.history.map(x => x.cpu); document.getElementById("avgCpu").textContent = (vals.reduce((a, b) => a + b, 0) / (vals.length || 1)).toFixed(1) + "%"; document.getElementById("peakCpu").textContent = (Math.max(...vals, 0)).toFixed(1) + "%"; document.getElementById("peakReq").textContent = Math.max(...m.history.map(x => x.requests), 0).toLocaleString(); document.getElementById("scaleEvents").textContent = ev.filter(x => x.kind === "scale").length;
-        document.getElementById("backendStatus").textContent = "Connected";
-      } catch (e) { document.getElementById("backendStatus").textContent = "Offline"; console.error(e); }
+        
+        const backendStatusEl = document.getElementById("backendStatus");
+        if (backendStatusEl) {
+          backendStatusEl.textContent = "Connected";
+          backendStatusEl.style.color = "var(--green)";
+        }
+        const liveStatusEl = document.getElementById("liveStatusBadge");
+        if (liveStatusEl) {
+          liveStatusEl.textContent = "● All systems operational";
+          liveStatusEl.style.color = "var(--status-color)";
+        }
+      } catch (e) {
+        const backendStatusEl = document.getElementById("backendStatus");
+        if (backendStatusEl) {
+          backendStatusEl.textContent = "Offline (Reconnecting…)";
+          backendStatusEl.style.color = "var(--red)";
+        }
+        const liveStatusEl = document.getElementById("liveStatusBadge");
+        if (liveStatusEl) {
+          liveStatusEl.textContent = "○ Backend Offline";
+          liveStatusEl.style.color = "var(--red)";
+        }
+        console.error("CloudScale telemetry fetch error:", e);
+      }
     }
 
     async function loadPolicy() {
@@ -924,6 +1283,7 @@
       document.querySelectorAll(".nav button").forEach(x => x.classList.remove("active")); b.classList.add("active");
       document.querySelectorAll(".page").forEach(x => x.classList.remove("active")); document.getElementById(b.dataset.page).classList.add("active");
       updatePageTitle(b.dataset.page, b.textContent.trim());
+      if (window.innerWidth <= 768) closeSidebar();
       if (b.dataset.page === "autoscaling") await loadPolicy();
     });
 
