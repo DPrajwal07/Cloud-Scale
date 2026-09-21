@@ -212,95 +212,82 @@ scale_down_threshold = 30.0 # Scale DOWN when CPU <= 30%
 ## Project Structure
 
 ```
-.
-├── README.md                  # Project documentation
-├── requirements.txt           # Python backend dependencies
-├── vercel.json                # Vercel deployment & routing configuration
-├── main.py                    # FastAPI application & telemetry simulation engine
-├── api/
-│   └── index.py               # Vercel serverless function entry point
-├── index.html                 # Main landing page HTML
-├── css/
-│   └── styles.css             # Landing page CSS design system
-├── js/
-│   └── main.js                # Landing page interactivity & live hero widget script
-├── dashboard/
-│   ├── index.html             # Full Dashboard SPA (HTML + inline JS controller)
-│   ├── logo-light.png         # Brand logo (light mode)
-│   ├── logo-dark.png          # Brand logo (dark mode)
-│   ├── icon-light.png         # Brand icon (light mode)
-│   ├── icon-dark.png          # Brand icon (dark mode)
-│   ├── favicon.png            # Dashboard favicon
-│   ├── favicon.ico            # Shortcut icon
-│   └── favicon.svg            # Vector icon
-└── assets/
-    ├── favicon.png            # Root favicon
-    ├── favicon.svg            # Vector favicon
-    └── images/                # Landing page image assets & icons
-        ├── cloudscale-preview.png
-        ├── logo-light.png
-        ├── logo-dark.png
-        ├── icon-light.png
-        ├── icon-dark.png
-        ├── favicon.png
-        └── favicon.ico
+CloudScale
+│
+├── cloudscale-backend/        # Independent FastAPI backend service
+│   ├── main.py                # Telemetry simulation engine & REST endpoints
+│   ├── requirements.txt       # Pinned dependencies (fastapi, uvicorn, pydantic)
+│   ├── pyproject.toml         # Packaging metadata
+│   ├── vercel.json            # Vercel @vercel/python configuration
+│   ├── README.md              # Backend documentation
+│   └── tests/
+│       └── test_backend.py    # Automated test suite (10/10 tests passing)
+│
+├── cloudscale-frontend/       # Independent static frontend deployment
+│   ├── index.html             # Public landing page with live telemetry
+│   ├── css/
+│   │   └── styles.css         # Design system, themes & animations
+│   ├── js/
+│   │   ├── config.js          # Centralized API configuration (auto-detects local vs prod)
+│   │   └── main.js            # Landing page interactions & hero telemetry
+│   ├── dashboard/
+│   │   ├── index.html         # Interactive monitoring dashboard SPA
+│   │   └── ...                # Brand icons & logos
+│   ├── assets/
+│   │   └── images/            # Brand assets & preview images
+│   ├── vercel.json            # Static routing rules
+│   └── README.md              # Frontend documentation
+│
+└── README.md                  # Workspace overview & architecture guide
 ```
 
 ---
 
 ## Running Locally
 
-### Prerequisites
-- Python 3.10 or higher installed.
-- Modern web browser (Chrome, Firefox, Safari, Edge).
+### 1. Start the Backend API (FastAPI)
+```bash
+cd cloudscale-backend
+python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
+- **API Base**: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+- **API Health**: [http://127.0.0.1:8000/api/health](http://127.0.0.1:8000/api/health)
+- **Swagger Documentation**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
-### Installation & Setup
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/DPrajwal07/Cloud-Scale.git
-   cd Cloud-Scale
-   ```
-
-2. **Install Python dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Start the FastAPI server**:
-   ```bash
-   python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-   ```
-
-4. **Access the application**:
-   - **Landing Page**: Open [http://127.0.0.1:8000](http://127.0.0.1:8000)
-   - **Dashboard SPA**: Open [http://127.0.0.1:8000/dashboard/index.html](http://127.0.0.1:8000/dashboard/index.html)
-   - **API Documentation**: Open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+### 2. Start the Frontend (Static Server)
+In a separate terminal:
+```bash
+cd cloudscale-frontend
+python -m http.server 3000
+```
+- **Landing Page**: [http://localhost:3000](http://localhost:3000)
+- **Dashboard SPA**: [http://localhost:3000/dashboard/index.html](http://localhost:3000/dashboard/index.html)
 
 ---
 
 ## Testing the Demo
 
-Follow this step-by-step workflow to test the monitoring and auto-scaling simulation:
-
-1. **Open the Dashboard**: Navigate to `http://127.0.0.1:8000/dashboard/index.html`.
-2. **Observe Baseline Metrics**: Verify CPU utilization (~40%–50%), Memory (~45%), Requests (~600 req/s), and active instance count (2 instances).
-3. **Start Synthetic Load Test**: Click the **"Generate Load"** button at the bottom of the overview tab.
-4. **Observe Workload Increase**: Watch the request rate increase to >1,500 req/s and CPU utilization rise past 75%.
-5. **Observe Auto-Scaling Behavior**: As CPU crosses the 75% scale-up threshold, watch the instance count scale up automatically from 2 to 3, 4, and 5 instances.
-6. **Check Activity Log**: Scroll to the "Recent activity" card or click the **Activity** tab to view recorded scaling events (`Instance 03 launched — CPU threshold exceeded`).
-7. **Stop the Load Test**: Click the **"Stop Load Test"** button.
-8. **Observe Workload Normalization**: Watch CPU utilization and request rates return toward baseline levels.
-9. **Inspect Auto-Scaling Configuration**: Navigate to the **Auto Scaling** tab to adjust thresholds or instance boundaries as desired.
+1. **Open the Dashboard**: Navigate to `http://localhost:3000/dashboard/index.html`.
+2. **Verify Backend Status**: Observe the status badge displays **"Backend Connected"** and **"● All systems operational"**.
+3. **Observe Baseline Metrics**: Verify CPU utilization (~40%–50%), Memory (~45%), Requests (~600 req/s), and active instance count.
+4. **Start Synthetic Load Test**: Click the **"Generate Load"** button.
+5. **Observe Auto-Scaling Behavior**: As CPU crosses the 75% threshold, observe instance count scaling up dynamically.
+6. **Stop the Load Test**: Click **"Stop Load Test"** and observe normalization.
 
 ---
 
-## Deployment
+## Deployment to Vercel
 
-This project is prepared for cloud deployment on **Vercel**:
+The application is architected as two independent Vercel projects:
 
-- **Serverless Entry Point**: [`api/index.py`](file:///Users/prajwald/Documents/Landing%20Page%20/api/index.py) exposes the FastAPI instance to Vercel's Python runtime.
-- **Routing**: [`vercel.json`](file:///Users/prajwald/Documents/Landing%20Page%20/vercel.json) maps `/api/*` requests to the serverless function while serving static assets (`index.html`, `dashboard/index.html`, `css`, `js`, `assets`) directly.
+1. **Backend Deployment**:
+   - Vercel Root Directory: `cloudscale-backend`
+   - Framework Preset: **Other**
+   - Environment Variables: `FRONTEND_URL=https://<your-frontend-domain>.vercel.app`
+2. **Frontend Deployment**:
+   - Vercel Root Directory: `cloudscale-frontend`
+   - Framework Preset: **Other**
+   - In `js/config.js`, verify `DEFAULT_PROD_URL` points to your backend Vercel URL.
 
 🔗 **Live Application Link**: [Live Demo](https://cloud-scale-ten.vercel.app/) *(Update placeholder after Vercel deployment)*
 

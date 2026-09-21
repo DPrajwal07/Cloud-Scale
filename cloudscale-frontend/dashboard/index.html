@@ -16,6 +16,7 @@
     })();
   </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4"></script>
+  <script src="../js/config.js"></script>
   <style>
     :root {
       color-scheme: dark light;
@@ -1065,70 +1066,68 @@
   </div>
 
   <script>
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+    const isLocal = window.CLOUDSCALE_CONFIG
+      ? window.CLOUDSCALE_CONFIG.isLocal
+      : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:');
     const envStatusEl = document.getElementById("envStatus");
     if (envStatusEl) {
       envStatusEl.textContent = isLocal ? "Local" : "Vercel";
     }
 
-    const getApiBase = () => {
-      if (window.location.protocol === 'file:') return "http://localhost:8000/api";
-      if (window.location.port && window.location.port !== '8000' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-        return "http://localhost:8000/api";
-      }
-      return "/api";
-    };
-    let API = getApiBase();
+    const API_URL = (window.CLOUDSCALE_CONFIG && window.CLOUDSCALE_CONFIG.API_URL)
+      ? window.CLOUDSCALE_CONFIG.API_URL
+      : (isLocal ? "http://127.0.0.1:8000" : "https://cloudscale-backend.vercel.app");
+    const API_BASE = `${API_URL}/api`;
     let chart, monitorChart, analyticsChart, lastHistory = [];
 
-    // Robust fetch with automatic serverless endpoint fallback
-    async function get(path) {
-      try {
-        const r = await fetch(API + path);
-        if (r.ok) return await r.json();
-        throw new Error("HTTP " + r.status);
-      } catch (err) {
-        // Fallback for Vercel if /api route mapping had an issue: try direct /api/index.py
-        if (API === "/api") {
-          try {
-            const fallbackUrl = "/api/index.py" + path;
-            const r2 = await fetch(fallbackUrl);
-            if (r2.ok) {
-              API = "/api/index.py";
-              return await r2.json();
-            }
-          } catch (e2) {}
-        }
-        throw err;
+    function setBackendStatus(connected) {
+      const backendStatusEl = document.getElementById("backendStatus");
+      if (backendStatusEl) {
+        backendStatusEl.textContent = connected ? "Backend Connected" : "Backend Offline";
+        backendStatusEl.style.color = connected ? "var(--green)" : "var(--red)";
+      }
+      const liveStatusEl = document.getElementById("liveStatusBadge");
+      if (liveStatusEl) {
+        liveStatusEl.textContent = connected ? "● All systems operational" : "○ Backend Offline";
+        liveStatusEl.style.color = connected ? "var(--status-color)" : "var(--red)";
       }
     }
 
-    async function post(path, body) {
+    async function checkBackendHealth() {
       try {
-        const r = await fetch(API + path, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
-        if (r.ok) return await r.json();
-        throw new Error("HTTP " + r.status);
-      } catch (err) {
-        if (API === "/api") {
-          try {
-            const fallbackUrl = "/api/index.py" + path;
-            const r2 = await fetch(fallbackUrl, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(body)
-            });
-            if (r2.ok) {
-              API = "/api/index.py";
-              return await r2.json();
-            }
-          } catch (e2) {}
+        const r = await fetch(`${API_BASE}/health`);
+        if (r.ok) {
+          const data = await r.json();
+          if (data && data.status === "healthy") {
+            setBackendStatus(true);
+            return true;
+          }
         }
-        throw err;
+        setBackendStatus(false);
+        return false;
+      } catch (err) {
+        setBackendStatus(false);
+        return false;
       }
+    }
+
+    // Clean REST fetch wrappers
+    async function get(path) {
+      const cleanPath = path.startsWith("/") ? path : `/${path}`;
+      const r = await fetch(API_BASE + cleanPath);
+      if (r.ok) return await r.json();
+      throw new Error("HTTP " + r.status);
+    }
+
+    async function post(path, body) {
+      const cleanPath = path.startsWith("/") ? path : `/${path}`;
+      const r = await fetch(API_BASE + cleanPath, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if (r.ok) return await r.json();
+      throw new Error("HTTP " + r.status);
     }
 
     // Mobile Drawer Navigation Logic
@@ -1233,28 +1232,10 @@
         if (analyticsChart) { analyticsChart.data.labels = m.history.map(x => x.time); analyticsChart.data.datasets[0].data = m.history.map(x => x.requests); analyticsChart.update("none"); }
         const vals = m.history.map(x => x.cpu); document.getElementById("avgCpu").textContent = (vals.reduce((a, b) => a + b, 0) / (vals.length || 1)).toFixed(1) + "%"; document.getElementById("peakCpu").textContent = (Math.max(...vals, 0)).toFixed(1) + "%"; document.getElementById("peakReq").textContent = Math.max(...m.history.map(x => x.requests), 0).toLocaleString(); document.getElementById("scaleEvents").textContent = ev.filter(x => x.kind === "scale").length;
         
-        const backendStatusEl = document.getElementById("backendStatus");
-        if (backendStatusEl) {
-          backendStatusEl.textContent = "Connected";
-          backendStatusEl.style.color = "var(--green)";
-        }
-        const liveStatusEl = document.getElementById("liveStatusBadge");
-        if (liveStatusEl) {
-          liveStatusEl.textContent = "● All systems operational";
-          liveStatusEl.style.color = "var(--status-color)";
-        }
+        setBackendStatus(true);
       } catch (e) {
-        const backendStatusEl = document.getElementById("backendStatus");
-        if (backendStatusEl) {
-          backendStatusEl.textContent = "Offline (Reconnecting…)";
-          backendStatusEl.style.color = "var(--red)";
-        }
-        const liveStatusEl = document.getElementById("liveStatusBadge");
-        if (liveStatusEl) {
-          liveStatusEl.textContent = "○ Backend Offline";
-          liveStatusEl.style.color = "var(--red)";
-        }
-        console.error("CloudScale telemetry fetch error:", e);
+        setBackendStatus(false);
+        console.warn("CloudScale telemetry fetch error:", e);
       }
     }
 
@@ -1298,7 +1279,10 @@
 
     applyTheme(document.documentElement.getAttribute("data-theme") || "dark");
     updatePageTitle("dashboard");
-    refresh(); setInterval(refresh, 3000);
+    checkBackendHealth();
+    setInterval(checkBackendHealth, 10000);
+    refresh();
+    setInterval(refresh, 3000);
   </script>
 </body>
 

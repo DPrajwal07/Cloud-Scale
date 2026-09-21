@@ -1,4 +1,3 @@
-
 /**
  * CloudScale Public Landing Page - Core JavaScript
  * Handles navigation, mobile menu, scroll reveal animations,
@@ -286,30 +285,21 @@ function initLiveHeroTelemetry() {
   if (!heroCpuVal || !heroConsole) return;
 
   const getApiUrl = () => {
-    if (window.location.protocol === 'file:') return "http://localhost:8000/api";
-    if (window.location.port && window.location.port !== '8000' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-      return "http://localhost:8000/api";
+    if (window.CLOUDSCALE_CONFIG && window.CLOUDSCALE_CONFIG.API_URL) {
+      return window.CLOUDSCALE_CONFIG.API_URL;
     }
-    return "/api";
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+    return isLocal ? "http://127.0.0.1:8000" : "https://cloudscale-backend.vercel.app";
   };
-  let API_URL = getApiUrl();
+
+  const API_URL = getApiUrl();
 
   async function fetchHeroTelemetry() {
     try {
-      let [metricsRes, activityRes] = await Promise.all([
-        fetch(`${API_URL}/metrics`).then(r => r.ok ? r.json() : null).catch(() => null),
-        fetch(`${API_URL}/activity`).then(r => r.ok ? r.json() : null).catch(() => null)
+      const [metricsRes, activityRes] = await Promise.all([
+        fetch(`${API_URL}/api/metrics`).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`${API_URL}/api/activity`).then(r => r.ok ? r.json() : null).catch(() => null)
       ]);
-
-      // If primary /api call was unmapped on Vercel, attempt direct /api/index.py fallback
-      if (!metricsRes && API_URL === "/api") {
-        const fallbackRes = await fetch(`/api/index.py/metrics`).then(r => r.ok ? r.json() : null).catch(() => null);
-        if (fallbackRes) {
-          API_URL = "/api/index.py";
-          metricsRes = fallbackRes;
-          activityRes = await fetch(`/api/index.py/activity`).then(r => r.ok ? r.json() : null).catch(() => null);
-        }
-      }
 
       if (metricsRes) {
         const cpu = metricsRes.cpu;
@@ -330,7 +320,7 @@ function initLiveHeroTelemetry() {
         const topEvents = activityRes.slice(0, 3);
         heroConsole.innerHTML = topEvents.map(e => {
           let tagClass = 'tag-info';
-          let tagText = e.kind.toUpperCase();
+          let tagText = (e.kind || 'INFO').toUpperCase();
           if (e.kind === 'scale') { tagClass = 'tag-scale'; tagText = 'SCALE'; }
           else if (e.kind === 'load') { tagClass = 'tag-load'; tagText = 'LOAD'; }
           else if (e.kind === 'config') { tagClass = 'tag-config'; tagText = 'POLICY'; }
@@ -347,4 +337,3 @@ function initLiveHeroTelemetry() {
   fetchHeroTelemetry();
   setInterval(fetchHeroTelemetry, 3000);
 }
-

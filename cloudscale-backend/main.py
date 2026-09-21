@@ -1,70 +1,47 @@
 from fastapi import FastAPI, Response
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime
 import random
 import os
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-class VercelPathMiddleware:
-    """
-    ASGI middleware to resolve Vercel serverless function rewrites.
-    When Vercel rewrites /api/(.*) to /api/index.py, the raw path arriving at the
-    function is '/api/index.py'. Vercel provides the client's original requested
-    path in 'x-matched-path' or 'x-forwarded-uri' headers.
-    This middleware restores scope['path'] to the true requested endpoint so FastAPI
-    routes match reliably without 404 Not Found errors.
-    """
-    def __init__(self, app):
-        self.app = app
-
-    async def __call__(self, scope, receive, send):
-        if scope["type"] == "http":
-            path = scope.get("path", "")
-            headers = dict(scope.get("headers", []))
-
-            # Vercel injection headers containing the original client URL
-            matched_path = (
-                headers.get(b"x-matched-path", b"")
-                or headers.get(b"x-forwarded-uri", b"")
-                or headers.get(b"x-invoke-path", b"")
-                or headers.get(b"x-original-uri", b"")
-            ).decode("latin1")
-
-            if matched_path and matched_path != path:
-                clean_matched = matched_path.split("?")[0]
-                if clean_matched and clean_matched not in ("/api/index.py", "/index.py"):
-                    scope["path"] = clean_matched
-                    path = clean_matched
-
-            # Handle direct requests or rewrites targeting /api/index.py
-            if path in ("/api/index.py", "/api/index.py/", "/index.py", "/index.py/"):
-                scope["path"] = "/api/health"
-            elif path.startswith("/api/index.py/"):
-                sub = path[len("/api/index.py"):]
-                scope["path"] = sub if sub.startswith("/api") else "/api" + sub
-            elif path.startswith("/index.py/"):
-                sub = path[len("/index.py"):]
-                scope["path"] = sub if sub.startswith("/api") else "/api" + sub
-
-        await self.app(scope, receive, send)
-
 app = FastAPI(title="CloudScale API", version="1.0.0", redirect_slashes=False)
 
-# Register Vercel ASGI path middleware
-app.add_middleware(VercelPathMiddleware)
+# Configure CORS: Allow frontend origin via FRONTEND_URL or local development origins
+frontend_url_env = os.getenv("FRONTEND_URL", "").strip()
+configured_origins = [o.strip() for o in frontend_url_env.split(",") if o.strip()]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+default_origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://localhost:5500",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5500",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
 
+allowed_origins = list(dict.fromkeys(configured_origins + default_origins))
+
+if "*" in configured_origins or frontend_url_env == "*":
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+# Authoritative CloudScale simulation state
 state = {
     "cpu": 42.0,
     "memory": 48.0,
@@ -81,7 +58,7 @@ state = {
     "events": []
 }
 
-def add_event(message, kind="info"):
+def add_event(message: str, kind: str = "info"):
     event = {
         "time": datetime.now().strftime("%H:%M:%S"),
         "message": message,
@@ -91,6 +68,7 @@ def add_event(message, kind="info"):
     state["events"] = state["events"][:30]
 
 def tick():
+    """Authoritative infrastructure telemetry simulation step"""
     if state["load_test"]:
         target = random.uniform(76, 94)
         state["requests"] = random.randint(1400, 2600)
@@ -123,16 +101,18 @@ def tick():
 
 @app.get("/")
 def root():
-    index_path = os.path.join(BASE_DIR, "index.html")
-    if os.path.exists(index_path):
-        return FileResponse(index_path)
     return {
         "status": "healthy",
         "service": "cloudscale-api",
         "version": "1.0.0",
+        "docs": "/docs",
         "health": "/api/health",
         "metrics": "/api/metrics"
     }
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return Response(status_code=204)
 
 @app.get("/api")
 @app.get("/api/")
@@ -145,16 +125,15 @@ def api_root():
         "metrics": "/api/metrics"
     }
 
-@app.get("/favicon.ico", include_in_schema=False)
-def favicon():
-    return Response(status_code=204)
-
 @app.get("/api/health")
 @app.get("/api/health/")
 @app.get("/health")
 @app.get("/health/")
 def health():
-    return {"status": "healthy", "service": "cloudscale-api"}
+    return {
+        "status": "healthy",
+        "service": "cloudscale-api"
+    }
 
 @app.get("/api/metrics")
 @app.get("/api/metrics/")
@@ -262,81 +241,8 @@ def insights():
         "message": "Current workload is within the configured operating range. No scaling intervention is required."
     }
 
-# ==============================================================================
-# Vercel Serverless Function Explicit Route Aliases
-# Ensures that even direct HTTP requests to /api/index.py (e.g. from health checkers,
-# browser address bars, or unrewritten routes) resolve with 200 OK.
-# ==============================================================================
-@app.get("/api/index.py")
-@app.get("/api/index.py/")
-@app.get("/index.py")
-@app.get("/index.py/")
-def api_index_file():
-    return {
-        "status": "healthy",
-        "service": "cloudscale-api",
-        "version": "1.0.0",
-        "health": "/api/health",
-        "metrics": "/api/metrics",
-        "resources": "/api/resources",
-        "activity": "/api/activity",
-        "insights": "/api/insights",
-        "autoscaling": "/api/autoscaling",
-        "platform": "vercel-compatible"
-    }
-
-@app.get("/api/index.py/health")
-@app.get("/api/index.py/health/")
-def api_index_health():
-    return health()
-
-@app.get("/api/index.py/metrics")
-@app.get("/api/index.py/metrics/")
-def api_index_metrics():
-    return metrics()
-
-@app.get("/api/index.py/resources")
-@app.get("/api/index.py/resources/")
-def api_index_resources():
-    return resources()
-
-@app.get("/api/index.py/activity")
-@app.get("/api/index.py/activity/")
-def api_index_activity():
-    return activity()
-
-@app.get("/api/index.py/insights")
-@app.get("/api/index.py/insights/")
-def api_index_insights():
-    return insights()
-
-@app.get("/api/index.py/autoscaling")
-@app.get("/api/index.py/autoscaling/")
-def api_index_autoscaling():
-    return autoscaling()
-
-@app.post("/api/index.py/autoscaling")
-@app.post("/api/index.py/autoscaling/")
-def api_index_update_autoscaling(config: ScalingConfig):
-    return update_autoscaling(config)
-
-@app.post("/api/index.py/load-test")
-@app.post("/api/index.py/load-test/")
-def api_index_load_test(config: LoadConfig):
-    return load_test(config)
-
-# Export for both app and handler conventions in Vercel
+# Export for Vercel ASGI runner
 handler = app
-
-# Local static file mounts for dev server
-if os.path.exists(os.path.join(BASE_DIR, "css")):
-    app.mount("/css", StaticFiles(directory=os.path.join(BASE_DIR, "css")), name="css")
-if os.path.exists(os.path.join(BASE_DIR, "js")):
-    app.mount("/js", StaticFiles(directory=os.path.join(BASE_DIR, "js")), name="js")
-if os.path.exists(os.path.join(BASE_DIR, "assets")):
-    app.mount("/assets", StaticFiles(directory=os.path.join(BASE_DIR, "assets")), name="assets")
-if os.path.exists(os.path.join(BASE_DIR, "dashboard")):
-    app.mount("/dashboard", StaticFiles(directory=os.path.join(BASE_DIR, "dashboard"), html=True), name="dashboard")
 
 if __name__ == "__main__":
     import uvicorn
