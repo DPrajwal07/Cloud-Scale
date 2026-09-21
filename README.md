@@ -2,7 +2,7 @@
 
 > **Monitor. Analyze. Scale.**
 
-![CloudScale Overview](assets/images/cloudscale-preview.png)
+![CloudScale Overview](cloudscale-frontend/assets/images/cloudscale-preview.png)
 
 CloudScale is a cloud infrastructure monitoring and auto-scaling **simulation platform** built as a Cloud Computing internship project. It provides real-time visualization of resource utilization telemetry, workload behavior, system activity logs, and automated scaling decisions through a unified web interface and Python FastAPI backend.
 
@@ -282,14 +282,11 @@ The application is architected as two independent Vercel projects:
 
 1. **Backend Deployment**:
    - Vercel Root Directory: `cloudscale-backend`
-   - Framework Preset: **Other**
-   - Environment Variables: `FRONTEND_URL=https://<your-frontend-domain>.vercel.app`
+  
 2. **Frontend Deployment**:
    - Vercel Root Directory: `cloudscale-frontend`
-   - Framework Preset: **Other**
-   - In `js/config.js`, verify `DEFAULT_PROD_URL` points to your backend Vercel URL.
-
-🔗 **Live Application Link**: [Live Demo](https://cloud-scale-ten.vercel.app/) *(Update placeholder after Vercel deployment)*
+ 
+🔗 **Live Application Link**: [Live Demo](https://cloud-scale-bu47.vercel.app/)
 
 ---
 
