@@ -36,6 +36,7 @@ else:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,
+        allow_origin_regex=r"^https://.*\.vercel\.app$",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -99,7 +100,7 @@ def tick():
     state["history"].append(point)
     state["history"] = state["history"][-30:]
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def root():
     return {
         "status": "healthy",
@@ -114,8 +115,8 @@ def root():
 def favicon():
     return Response(status_code=204)
 
-@app.get("/api")
-@app.get("/api/")
+@app.api_route("/api", methods=["GET", "HEAD"])
+@app.api_route("/api/", methods=["GET", "HEAD"])
 def api_root():
     return {
         "status": "healthy",
@@ -125,10 +126,10 @@ def api_root():
         "metrics": "/api/metrics"
     }
 
-@app.get("/api/health")
-@app.get("/api/health/")
-@app.get("/health")
-@app.get("/health/")
+@app.api_route("/api/health", methods=["GET", "HEAD"])
+@app.api_route("/api/health/", methods=["GET", "HEAD"])
+@app.api_route("/health", methods=["GET", "HEAD"])
+@app.api_route("/health/", methods=["GET", "HEAD"])
 def health():
     return {
         "status": "healthy",

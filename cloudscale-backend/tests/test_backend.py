@@ -123,11 +123,16 @@ class TestCloudScaleBackend(unittest.TestCase):
         self.assertIn("swagger-ui", res.text.lower())
 
     def test_10_cors_headers(self):
-        """CORS headers should allow local dev origins"""
-        headers = {"Origin": "http://localhost:3000"}
-        res = self.client.get("/api/health", headers=headers)
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.headers.get("access-control-allow-origin"), "http://localhost:3000")
+        """CORS headers should allow local dev origins and all Vercel origins"""
+        headers_local = {"Origin": "http://localhost:3000"}
+        res_local = self.client.get("/api/health", headers=headers_local)
+        self.assertEqual(res_local.status_code, 200)
+        self.assertEqual(res_local.headers.get("access-control-allow-origin"), "http://localhost:3000")
+
+        headers_vercel = {"Origin": "https://cloud-scale-ten.vercel.app"}
+        res_vercel = self.client.get("/api/health", headers=headers_vercel)
+        self.assertEqual(res_vercel.status_code, 200)
+        self.assertEqual(res_vercel.headers.get("access-control-allow-origin"), "https://cloud-scale-ten.vercel.app")
 
 
 if __name__ == "__main__":

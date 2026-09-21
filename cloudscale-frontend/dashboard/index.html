@@ -17,6 +17,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4"></script>
   <script src="../js/config.js"></script>
+  <script>if (!window.CLOUDSCALE_CONFIG) document.write('<script src="/js/config.js"><\/script>');</script>
   <style>
     :root {
       color-scheme: dark light;
@@ -1051,7 +1052,7 @@
           </div>
           <div class="switch">
             <div><b>Backend</b>
-              <div class="sub">FastAPI monitoring service.</div>
+              <div class="sub" id="backendEndpoint">FastAPI monitoring service.</div>
             </div><span id="backendStatus">Checking…</span>
           </div>
         </div>
@@ -1078,6 +1079,10 @@
       ? window.CLOUDSCALE_CONFIG.API_URL
       : (isLocal ? "http://127.0.0.1:8000" : "https://cloudscale-backend.vercel.app");
     const API_BASE = `${API_URL}/api`;
+    const backendEndpointEl = document.getElementById("backendEndpoint");
+    if (backendEndpointEl) {
+      backendEndpointEl.textContent = `API: ${API_BASE}`;
+    }
     let chart, monitorChart, analyticsChart, lastHistory = [];
 
     function setBackendStatus(connected) {
